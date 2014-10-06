@@ -1,5 +1,7 @@
 <?php namespace Hpkns\Picturesque;
 
+use Illuminate\Html\HtmlBuilder as Builder;
+
 class Picture {
 
     /**
@@ -9,33 +11,62 @@ class Picture {
      */
     protected $path;
 
-    /*
+    /**
      * The alt attribute
      *
      * @var string
      */
     protected $alt;
 
-    public function __construct($path = null, $alt = null)
+    /**
+     * A resizing tool
+     *
+     * @var \Hpkns\Picturesque\ImageResizer
+     */
+    protected $resizer;
+
+    /**
+     * An HTML builder to parse html attributes
+     *
+     * @var \Hpkns\Picturesque\ImageResizer
+     */
+    protected $builder;
+
+    public function __construct($path = null, $alt = null, Resizer $resizer = null, Builder $builder = null)
     {
         $this->path = $path;
         $this->alt = $alt;
-        $this->resizer = \App::make('picturesque.resizer');
+        $this->resizer = $resizer ?: new Resizer;
+        $this->builder = $builder ?: new Builder;
     }
 
+    /**
+     * Return the tag for the desired format
+     *
+     * @param  string $format
+     * @param  array  $attributes
+     * @return string
+     */
     public function getTag($format = 'full', $attributes = [])
     {
-        if(empty($attributes))
+        if( ! isset($attributes['alt']) )
         {
             $attributes['alt'] = $this->alt;
         }
 
         $path = $this->resizer->getPath($this->path, $format);
-        $attributes = (new \Illuminate\Html\HtmlBuilder)->attributes($attributes);
+        $attributes = $this->builder->attributes($attributes);
 
         return "<img src='{$path}'{$attributes}>";
     }
 
+    /**
+     * Create dynamic properties to return tags
+     *
+     * @param  string $key
+     * @return string
+     * @throws \Exception
+     */
     public function __get($key)
     {
         if($this->resizer->formatExists($key))

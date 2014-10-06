@@ -1,6 +1,6 @@
 {
     "name": "hpkns/laravel-picturesque",
-    "description": "",
+    "description": "A picture manipulation package for Laravel build over intervention/image",
     "license": "MIT",
     "keywords": ["Laravel"],
     "authors": [
@@ -13,6 +13,9 @@
         "php": ">=5.4.0",
         "illuminate/support": "4.2.*",
         "intervention/image": "~2"
+    },
+    "require-dev": {
+        "mockery/mockery": "0.9.*"
     },
     "autoload": {
         "psr-4": {
