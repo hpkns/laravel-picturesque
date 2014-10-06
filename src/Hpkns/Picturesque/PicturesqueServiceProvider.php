@@ -29,6 +29,13 @@ class PicturesqueServiceProvider extends ServiceProvider {
                 $app->config['picturesque::cache']
             );
         });
+
+        $this->app->bindShared('picturesque.builder', function($app)){
+            return new PictureBuilder(
+                $app->make('picturesque.resizer'),
+                $app->make('html')
+            );
+        }
 	}
 
 	/**
@@ -38,7 +45,6 @@ class PicturesqueServiceProvider extends ServiceProvider {
 	 */
 	public function provides()
 	{
-		return array();
+		return ['picturesque.resizer', 'picturesque.builder'];
 	}
-
 }

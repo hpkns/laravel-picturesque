@@ -54,10 +54,17 @@ class Picture {
             $attributes['alt'] = $this->alt;
         }
 
-        $path = $this->resizer->getPath($this->path, $format);
-        $attributes = $this->builder->attributes($attributes);
+        if($path = $this->resizer->getPath($this->path, $format))
+        {
+            $size = getimagesize($path);
 
-        return "<img src='{$path}'{$attributes}>";
+            $attributes['width'] = $size[0];
+            $attributes['height'] = $size[1];
+
+            $attributes = $this->builder->attributes($attributes);
+
+            return "<img src='{$path}'{$attributes}>";
+        }
     }
 
     /**

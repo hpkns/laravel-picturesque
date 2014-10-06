@@ -3,8 +3,9 @@
 use \Hpkns\Picturesque\Picture;
 use \Mockery as m;
 
-class UnitTests extends PHPUNIT_Framework_TestCase {
+require_once('utility/getimagesize.php');
 
+class PictureUnitTests extends \PHPUNIT_Framework_TestCase {
 
     protected $samples = [
         'path'      => 'path/to/picture.jpg',
@@ -12,6 +13,7 @@ class UnitTests extends PHPUNIT_Framework_TestCase {
         'format'    => 'thumbnail',
         'alt'       => 'alternate text',
         'attributes'=> ['some','attributes'],
+        'text_attrs'=> ' and="other attributes"',
     ];
 
     protected function tearDown()
@@ -38,11 +40,12 @@ class UnitTests extends PHPUNIT_Framework_TestCase {
         $this->r->shouldReceive('getPath')
             ->with($path, $format)
             ->andReturn($new_path);
-        $this->b->shouldReceive('attributes')
-            ->with(['alt'=>$alt])
-            ->andReturn(' focus');
 
-        $this->assertEquals($p->getTag($format), "<img src='{$new_path}' focus>");
+        $this->b->shouldReceive('attributes')
+            ->with(['alt'=>$alt, 'width'=>50, 'height'=>50])
+            ->andReturn($text_attrs);
+
+        $this->assertEquals($p->getTag($format), "<img src='{$new_path}'{$text_attrs}>");
     }
 
     public function testDynamicAttributes()
@@ -56,11 +59,12 @@ class UnitTests extends PHPUNIT_Framework_TestCase {
             ->shouldReceive('getPath')
             ->with($path, $format)
             ->andReturn($new_path);
-        $this->b->shouldReceive('attributes')
-            ->with(['alt'=>$alt])
-            ->andReturn(' focus');
 
-        $this->assertEquals($p->getTag($format), "<img src='{$new_path}' focus>");
+        $this->b->shouldReceive('attributes')
+            ->with(['alt'=>$alt, 'width'=>50, 'height'=>50])
+            ->andReturn($text_attrs);
+
+        $this->assertEquals($p->getTag($format), "<img src='{$new_path}'{$text_attrs}>");
     }
 
     /**
