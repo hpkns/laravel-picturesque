@@ -33,9 +33,9 @@ class Resizer {
      * @param  string $cache
      * @return void
      */
-    public function __construct(ImageManager $manager, $formats = [], $cache = '/images/cache')
+    public function __construct(ImageManager $manager = null, $formats = [], $cache = '/images/cache')
     {
-        $this->manager = $manager;
+        $this->manager = $manager ?: new ImageManager;
         $this->formats = $formats;
         $this->cachePath = $cache;
     }
