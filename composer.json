@@ -1,0 +1,23 @@
+{
+    "name": "hpkns/laravel-picturesque",
+    "description": "",
+    "license": "MIT",
+    "keywords": ["Laravel"]
+    "authors": [
+        {
+            "name": "Thomas Hupkens",
+            "email": "thomas@hupkens.be"
+        }
+    ],
+    "require": {
+        "php": ">=5.4.0",
+        "illuminate/support": "4.2.*",
+        "intervention/image": "~2"
+    },
+    "autoload": {
+        "psr-0": {
+            "Hpkns\\Picturesque\\": "src/"
+        }
+    },
+    "minimum-stability": "stable"
+}
