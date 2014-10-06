@@ -56,7 +56,7 @@ class Picture {
 
         if($path = $this->resizer->getPath($this->path, $format))
         {
-            $size = getimagesize($path);
+            $size = getimagesize(public_path() . "/$path");
 
             $attributes['width'] = $size[0];
             $attributes['height'] = $size[1];
