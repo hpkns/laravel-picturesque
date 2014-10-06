@@ -2,7 +2,7 @@
     "name": "hpkns/laravel-picturesque",
     "description": "",
     "license": "MIT",
-    "keywords": ["Laravel"]
+    "keywords": ["Laravel"],
     "authors": [
         {
             "name": "Thomas Hupkens",
