@@ -21,14 +21,14 @@ class Picture {
     /**
      * A resizing tool
      *
-     * @var \Hpkns\Picturesque\ImageResizer
+     * @var \Hpkns\Picturesque\Resizer
      */
     protected $resizer;
 
     /**
      * An HTML builder to parse html attributes
      *
-     * @var \Hpkns\Picturesque\ImageResizer
+     * @var \Hpkns\Picturesque\Resizer
      */
     protected $builder;
 

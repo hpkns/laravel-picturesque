@@ -2,7 +2,7 @@
 
 use Intervention\Image\ImageManager;
 
-class ImageResizer {
+class Resizer {
 
     /**
      *  A list of formats known to the instance

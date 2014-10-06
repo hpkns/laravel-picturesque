@@ -23,7 +23,7 @@ class PicturesqueServiceProvider extends ServiceProvider {
 	public function register()
 	{
         $this->app->bindShared('picturesque.resizer', function($app){
-            return new ImageResizer(
+            return new Resizer(
                 new \Intervention\Image\ImageManager,
                 $app->config['picturesque::sizes'],
                 $app->config['picturesque::cache']
@@ -35,7 +35,7 @@ class PicturesqueServiceProvider extends ServiceProvider {
                 $app->make('picturesque.resizer'),
                 $app->make('html')
             );
-        }
+        });
 	}
 
 	/**

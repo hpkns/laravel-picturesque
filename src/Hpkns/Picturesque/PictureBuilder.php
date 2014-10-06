@@ -7,7 +7,7 @@ class PictureBuilder {
     /**
      * A resizing tool
      *
-     * @var \Hpkns\Picturesque\ImageResizer
+     * @var \Hpkns\Picturesque\Resizer
      */
     protected $resizer;
 
@@ -21,8 +21,8 @@ class PictureBuilder {
     /**
      * Initialize the instance
      *
-     * @param  \Hpkns\Picturesque\ImageResizer $resizer
-     * @param  \Illuminate\Html\HtmlBuilder    $builder
+     * @param  \Hpkns\Picturesque\Resizer   $resizer
+     * @param  \Illuminate\Html\HtmlBuilder $builder
      * @return \Hpkns\Picturesque\Picture
      */
     public function __construct(Resizer $resizer = null, Builder $builder = null)
