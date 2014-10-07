@@ -2,7 +2,7 @@
 
 use Intervention\Image\ImageManager;
 
-class Resizer {
+class PictureResizer {
 
     /**
      *  A list of formats known to the instance
@@ -26,6 +26,13 @@ class Resizer {
     protected $manager;
 
     /**
+     * Size format
+     *
+     * @var string
+     */
+    protected $sizeFormat = "%sx%s%s";
+
+    /**
      * Initialise the instance
      *
      * @param  \Intervention\Image\ImageManager $manager
@@ -33,12 +40,28 @@ class Resizer {
      * @param  string $cache
      * @return void
      */
-    public function __construct(ImageManager $manager = null, $formats = [], $cache = '/images/cache')
+    public function __construct(ImageManager $manager = null, $formats = [], $cache = null)
     {
         $this->manager = $manager ?: new ImageManager;
         $this->formats = $formats;
-        $this->cachePath = $cache;
+        $this->cachePath = $cache ?: public_path() . '/images/cache/';
     }
+
+    public function resize($path, $size)
+    {
+    }
+
+    protected function getSizeName($size)
+    {
+        if(is_string($size)) return $size;
+
+        return sprintf($this->sizeFormat,
+            (isset($size['width']) ? $size['width'] : '-'),
+            (isset($size['height']) ? $size['height'] : '-'),
+            (isset($size['crop']) && $size['crop'] ? '-cropped' : '')
+        );
+    }
+
 
     /**
      * Return the path to a cached version if it exists
@@ -87,8 +110,6 @@ class Resizer {
      */
     protected function getCachedPath($path, $format)
     {
-        $extenstion = pathinfo(public_path() . "$path", PATHINFO_EXTENSION);
-        return "{$this->cachePath}/". md5("{$path}-{$format}") . ".{$extenstion}";
     }
 
     /**
@@ -111,7 +132,7 @@ class Resizer {
      * @param  string $output
      * @return string
      */
-    public function resize ($input, array $format, $output = null)
+    public function doresize ($input, array $format, $output = null)
     {
         $img = $this->manager->make($input);
 

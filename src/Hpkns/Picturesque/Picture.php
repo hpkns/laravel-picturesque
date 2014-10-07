@@ -9,7 +9,7 @@ class Picture {
      *
      * @var string
      */
-    protected $path;
+    protected $url;
 
     /**
      * The alt attribute
@@ -19,25 +19,20 @@ class Picture {
     protected $alt;
 
     /**
-     * A resizing tool
-     *
-     * @var \Hpkns\Picturesque\Resizer
-     */
-    protected $resizer;
-
-    /**
      * An HTML builder to parse html attributes
      *
-     * @var \Hpkns\Picturesque\Resizer
+     * @param  string                     $url
+     * @param  string                     $alt
+     * @param  \Hpkns\Picturesque\Resizer $builder
+     * @return void
      */
     protected $builder;
 
-    public function __construct($path = null, $alt = null, Resizer $resizer = null, Builder $builder = null)
+    public function __construct($url, $alt = null, Builder $builder = null)
     {
-        $this->path = $path;
+        $this->url = $url;
         $this->alt = $alt;
-        $this->resizer = $resizer ?: new Resizer;
-        $this->builder = $builder ?: new Builder;
+        $this->builder = $builder ?: \App::make('picturesque.builder');
     }
 
     /**
@@ -47,24 +42,9 @@ class Picture {
      * @param  array  $attributes
      * @return string
      */
-    public function getTag($format = 'full', $attributes = [])
+    public function getTag($size = 'full', $attributes = [], $secure = false)
     {
-        if( ! isset($attributes['alt']) )
-        {
-            $attributes['alt'] = $this->alt;
-        }
-
-        if($path = $this->resizer->getPath($this->path, $format))
-        {
-            $size = getimagesize(public_path() . "/$path");
-
-            $attributes['width'] = $size[0];
-            $attributes['height'] = $size[1];
-
-            $attributes = $this->builder->attributes($attributes);
-
-            return "<img src='{$path}'{$attributes}>";
-        }
+        return $this->builder->make($this->url, $size, $this->alt, $attributes, $secure);
     }
 
     /**
@@ -76,10 +56,29 @@ class Picture {
      */
     public function __get($key)
     {
-        if($this->resizer->formatExists($key))
+        return $this->getTag($key);
+    }
+
+    /**
+     * Return different invocations of getTag using the name of the dynamic property as size
+     *
+     * @param  string $key
+     * @param  array  $args
+     * @return string
+     */
+    public function __call($key, $args)
+    {
+        if(count($args) == 0)
         {
-            return $this->getTag($key);
+           return $this->getTag($key);
         }
-        throw new \Exception("Format $key does not exist. Please edit your config file to add it or use another format");
+        elseif(count($args) == 1)
+        {
+           return $this->getTag($key, $args[0]);
+        }
+        elseif(count($args) == 2)
+        {
+            return $this->getTag($key, $args[0], $args[1]);
+        }
     }
 }

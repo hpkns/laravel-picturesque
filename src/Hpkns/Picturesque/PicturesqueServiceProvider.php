@@ -14,6 +14,7 @@ class PicturesqueServiceProvider extends ServiceProvider {
     public function boot()
     {
         $this->package('hpkns/picturesque');
+        $this->app['events']->listen('picturesque::resize', 'picturesque.resizer@resize');
     }
 	/**
 	 * Register the service provider.
@@ -22,19 +23,11 @@ class PicturesqueServiceProvider extends ServiceProvider {
 	 */
 	public function register()
 	{
-        $this->app->bindShared('picturesque.resizer', function($app){
-            return new Resizer(
-                new \Intervention\Image\ImageManager,
-                $app->config['picturesque::sizes'],
-                $app->config['picturesque::cache']
-            );
-        });
-
         $this->app->bindShared('picturesque.builder', function($app){
-            return new PictureBuilder(
-                $app->make('picturesque.resizer'),
-                $app->make('html')
-            );
+            return new PictureBuilder($app['html'], $app['url'], $app['events']);
+        });
+        $this->app->bindShared('picturesque.resizer', function($app){
+            return new PictureResizer(new \Intervention\Image\ImageManager);
         });
 	}
 
@@ -45,6 +38,6 @@ class PicturesqueServiceProvider extends ServiceProvider {
 	 */
 	public function provides()
 	{
-		return ['picturesque.resizer', 'picturesque.builder'];
+		return []; //['picturesque.resizer', 'picturesque.builder'];
 	}
 }
