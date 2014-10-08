@@ -14,8 +14,8 @@ class PicturesqueServiceProvider extends ServiceProvider {
     public function boot()
     {
         $this->package('hpkns/picturesque');
-        $this->app['events']->listen('picturesque::resize', 'picturesque.resizer@resize');
     }
+
 	/**
 	 * Register the service provider.
 	 *
@@ -23,21 +23,29 @@ class PicturesqueServiceProvider extends ServiceProvider {
 	 */
 	public function register()
 	{
-        $this->app->bindShared('picturesque.builder', function($app){
-            return new PictureBuilder($app['html'], $app['url'], $app['events']);
-        });
-        $this->app->bindShared('picturesque.resizer', function($app){
-            return new PictureResizer(new \Intervention\Image\ImageManager);
-        });
-	}
+        $this->app->bind('Hpkns\Picturesque\Contracts\PictureResizerContract', function(){
+            $cache = $this->app->config['picturesque::cache'];
 
-	/**
-	 * Get the services provided by the provider.
-	 *
-	 * @return array
-	 */
-	public function provides()
-	{
-		return []; //['picturesque.resizer', 'picturesque.builder'];
-	}
+            if( ! empty($cache))
+            {
+                $cache = public_path() . '/'. ltrim($cache,'/');
+            }
+
+            return new PictureResizer(new \Intervention\Image\ImageManager, $this->app->config['picturesque::sizes'], $cache);
+        });
+
+        $this->app->bindShared('picturesque.builder', function($app){
+            return new PictureBuilder($app['Hpkns\Picturesque\Contracts\PictureResizerContract'], $app['html'], $app['url'], $app['events']);
+        });
+    }
+
+    /**
+     * Get the services provided by the provider.
+     *
+     * @return array
+     */
+    public function provides()
+    {
+        return ['picturesque.builder'];
+    }
 }

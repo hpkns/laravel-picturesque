@@ -2,14 +2,14 @@
 
 use Intervention\Image\ImageManager;
 
-class PictureResizer {
+class PictureResizer implements Contracts\PictureResizerContract {
 
     /**
-     *  A list of formats known to the instance
+     *  A list of sizes known to the instance
      *
      * @var array
      */
-    protected $formats;
+    protected $sizes;
 
     /**
      * The path to the cache folder from the public directory
@@ -40,89 +40,101 @@ class PictureResizer {
      * @param  string $cache
      * @return void
      */
-    public function __construct(ImageManager $manager = null, $formats = [], $cache = null)
+    public function __construct(ImageManager $manager = null, $sizes = [], $cache = null)
     {
         $this->manager = $manager ?: new ImageManager;
-        $this->formats = $formats;
-        $this->cachePath = $cache ?: public_path() . '/images/cache/';
+        $this->sizes = $sizes;
+        $this->cachePath = $cache;
     }
 
-    public function resize($path, $size)
+    /**
+     * Return a resized version of the picture
+     *
+     * @param  string  $path
+     * @param  array   $size
+     * @param  boolean $force
+     * @return string
+     */
+    public function getResized($path, $size = [], $force = false)
     {
+        if(is_string($size))
+        {
+            $size_name = $size;
+            $size = $this->getNamedSize($size);
+        }
+        else
+        {
+            $size_name = $this->getSizeName($size);
+        }
+
+        if(empty($size) || $size_name == 'full')
+        {
+            return $path;
+        }
+
+        $output = $this->getOutputPath($path, $size_name);
+
+        if( ! file_exists($output) || filemtime($path) > filemtime($output) || $force)
+        {
+            $this->resize($path, $size, $output);
+        }
+
+        return $output;
     }
 
-    protected function getSizeName($size)
+    /**
+     * Return the output path
+     *
+     * @param  string $file
+     * @param  string  $size_name
+     * @return string
+     */
+    protected function getOutputPath($file, $size_name)
     {
-        if(is_string($size)) return $size;
+        $infos = pathinfo($file);
+        $prefix = '';
 
+        if( ! empty($this->cachePath))
+        {
+            $folder = $this->cachePath;
+            $prefix = md5($file) . '-';
+        }
+        else
+        {
+            $folder = $infos['dirname'];
+        }
+
+        return "{$folder}/{$prefix}{$infos['filename']}-{$size_name}.{$infos['extension']}";
+    }
+
+    /**
+     * Return the registered size from its name
+     *
+     * @param  string $size
+     * @return array
+     */
+    protected function getNamedSize($size)
+    {
+        if(isset($this->sizes[$size]))
+        {
+            return $this->sizes[$size];
+        }
+    }
+
+    /**
+     * Create the name for a size when provided one as an array
+     *
+     * @param  array $size
+     * @return string
+     */
+    protected function getSizeName(array $size = [])
+    {
         return sprintf($this->sizeFormat,
             (isset($size['width']) ? $size['width'] : '-'),
             (isset($size['height']) ? $size['height'] : '-'),
             (isset($size['crop']) && $size['crop'] ? '-cropped' : '')
         );
     }
-
-
-    /**
-     * Return the path to a cached version if it exists
-     *
-     * @param  string $path
-     * @param  string $format
-     * @return mixed
-     */
-    public function getPath($path, $format = 'full')
-    {
-        if($format == 'full')
-        {
-            return $path;
-        }
-
-        if($cached = $this->getCached($path, $format))
-        {
-            return $cached;
-        }
-
-        return $this->resize(public_path() . $path, $this->formats[$format], public_path() . $this->getCachedPath($path, $format));
-    }
-
-    /**
-     * Return the path to a cached version if it exists
-     *
-     * @param  string $path
-     * @param  string $format
-     * @return mixed
-     */
-    protected function getCached($path, $format)
-    {
-        $cached = $this->getCachedPath($path, $format);
-        if(file_exists(public_path() . $cached ))
-        {
-            return $cached;
-        }
-    }
-
-    /**
-     * Return the path to the cached version
-     *
-     * @param  string $path
-     * @param  string $format
-     * @return mixed
-     */
-    protected function getCachedPath($path, $format)
-    {
-    }
-
-    /**
-     * Return true if the format string correspond to a format know to this instance
-     *
-     * @param  string $format
-     * @return boolean
-     */
-    public function formatExists($format)
-    {
-        return in_array($format, array_keys($this->formats));
-    }
-
 
     /**
      * Resizes an image to the desired format
@@ -132,7 +144,7 @@ class PictureResizer {
      * @param  string $output
      * @return string
      */
-    public function doresize ($input, array $format, $output = null)
+    protected function resize($input, array $format, $output = null)
     {
         $img = $this->manager->make($input);
 
@@ -149,7 +161,5 @@ class PictureResizer {
         }
 
         $img->save($output);
-
-        return str_replace(public_path(), '', $output);
     }
 }

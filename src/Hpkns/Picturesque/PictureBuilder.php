@@ -3,8 +3,17 @@
 use Illuminate\Html\HtmlBuilder;
 use Illuminate\Routing\UrlGenerator;
 use Illuminate\Events\Dispatcher;
+use Hpkns\Picturesque\Contracts\PictureResizerContract as Resizer;
 
 class PictureBuilder {
+
+
+    /**
+     * A resizer
+     *
+     * @var Contracts\PictureResizerContract
+     */
+    protected $resizer;
 
     /**
      * An HTML builder to parse html attributes
@@ -35,8 +44,9 @@ class PictureBuilder {
      * @param  \Illuminate\Events\Dispatcher    $event
      * @return void
      */
-    public function __construct(HtmlBuilder $builder = null, UrlGenerator $url = null, Dispatcher $event)
+    public function __construct(Resizer $resizer, HtmlBuilder $builder = null, UrlGenerator $url = null, Dispatcher $event)
     {
+        $this->resizer  = $resizer;
         $this->builder  = $builder;
         $this->url      = $url;
         $this->event    = $event;
@@ -56,7 +66,7 @@ class PictureBuilder {
     {
         $attributes['alt'] = $alt;
 
-        $url = $this->getResizedUrl($url, $size);
+        $url = $this->getResized($url, $size);
 
         return '<img src="'.$this->url->asset($url, $secure).'"'.$this->builder->attributes($attributes).'>';
     }
@@ -68,16 +78,9 @@ class PictureBuilder {
      * @param  string $size
      * @return string
      */
-    protected function getResizedUrl($url, $size)
+    protected function getResized($url, &$size)
     {
-        $paths = $this->event->fire('picturesque::resize', [$this->realPath($url), $size]);
-
-        if(count($paths) && ! empty($paths[0]))
-        {
-            $url = $this->publicPath($paths[0]);
-        }
-
-        return $url;
+        return $this->publicPath($this->resizer->getResized($this->realPath($url), $size));
     }
 
     /**
