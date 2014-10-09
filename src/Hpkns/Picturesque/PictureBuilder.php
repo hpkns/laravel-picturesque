@@ -2,11 +2,9 @@
 
 use Illuminate\Html\HtmlBuilder;
 use Illuminate\Routing\UrlGenerator;
-use Illuminate\Events\Dispatcher;
 use Hpkns\Picturesque\Contracts\PictureResizerContract as Resizer;
 
 class PictureBuilder {
-
 
     /**
      * A resizer
@@ -30,26 +28,18 @@ class PictureBuilder {
     protected $url;
 
     /**
-     * A dispatcher to fire events with
-     *
-     * @var \Illuminate\Events\Dispatcher
-     */
-    protected $event;
-
-    /**
      * Initialize the instance
      *
-     * @param  \Illuminate\Html\HtmlBuilder     $builder
-     * @param  \Illuminate\Routing\UrlGenerator $url
-     * @param  \Illuminate\Events\Dispatcher    $event
+     * @param  \Contracts\PictureResizerContract $resizer
+     * @param  \Illuminate\Html\HtmlBuilder      $builder
+     * @param  \Illuminate\Routing\UrlGenerator  $url
      * @return void
      */
-    public function __construct(Resizer $resizer, HtmlBuilder $builder = null, UrlGenerator $url = null, Dispatcher $event)
+    public function __construct(Resizer $resizer = null, HtmlBuilder $builder = null, UrlGenerator $url = null)
     {
         $this->resizer  = $resizer;
         $this->builder  = $builder;
         $this->url      = $url;
-        $this->event    = $event;
     }
 
     /**
@@ -72,7 +62,7 @@ class PictureBuilder {
     }
 
     /**
-     * Send an event to get the image resized somewhere else
+     * Users the resizer to resize the image
      *
      * @param  string $url
      * @param  string $size
@@ -93,7 +83,7 @@ class PictureBuilder {
     {
         // To create a "real" path suitable for the asset function
         // we must first remove the path to the public path directory
-        $pos = strpos($path,public_path());
+        $pos = strpos($path, public_path());
         if($pos === 0){
             return substr_replace($path, '', $pos, strlen(public_path()));
         }
@@ -108,7 +98,7 @@ class PictureBuilder {
      */
     protected function realPath($url)
     {
-        $path = \realpath(public_path() . '/' . ltrim($url, '/'));
+        $path = realpath(public_path() . '/' . ltrim($url, '/'));
         if( ! $path)
         {
             throw new Exceptions\WrongPathException("File {$url} not found. The path url provided must be relative to Laravel's public path.");
