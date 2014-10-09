@@ -7,5 +7,9 @@ function public_path(){
 }
 
 function realpath($path){
-    return $path;
+    // Value used to force if to throw an exception
+    if($path != '/laravel/public/should/fail')
+    {
+        return $path;
+    }
 }

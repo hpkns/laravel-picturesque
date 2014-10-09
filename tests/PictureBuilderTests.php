@@ -5,9 +5,7 @@ use \Mockery as m;
 
 require_once(__DIR__ . '/fakes/functions.php');
 
-class PictureUnitTests extends \PHPUNIT_Framework_TestCase {
-
-
+class PictureBuilderTests extends \PHPUNIT_Framework_TestCase {
 
     protected function tearDown()
     {
@@ -27,6 +25,7 @@ class PictureUnitTests extends \PHPUNIT_Framework_TestCase {
             'original_path'     => $path,
             'original_abspath'  => "{$public_path}/{$path}",
             'original_asset'    => "{$domain_name}/{$path}",
+            'failing_path'      => "should/fail",
 
             'resized_path'      => $resized,
             'resized_abspath'   => "{$public_path}/{$resized}",
@@ -57,7 +56,7 @@ class PictureUnitTests extends \PHPUNIT_Framework_TestCase {
 
         $this->r->shouldReceive('getResized')
             ->with($original_abspath, $format)
-            ->andReturn($resized_path);
+            ->andReturn($resized_abspath);
 
         $this->g->shouldReceive('asset')
             ->with($resized_path, false)
@@ -73,57 +72,35 @@ class PictureUnitTests extends \PHPUNIT_Framework_TestCase {
 
         $this->assertEquals("<img src=\"{$resized_asset}\"{$attributes_parsed}>", $r);
     }
+
     /**
-    public function testGetTag()
-    {
-        extract($this->samples);
-        $p = new Picture($path, $alt, $this->r, $this->b);
-
-        $this->r->shouldReceive('getPath')
-            ->with($path, $format)
-            ->andReturn($new_path);
-
-        $this->b->shouldReceive('attributes')
-            ->with(['alt'=>$alt, 'width'=>50, 'height'=>50])
-            ->andReturn($text_attrs);
-
-        $this->assertEquals($p->getTag($format), "<img src='{$new_path}'{$text_attrs}>");
-    }
-
-    public function testDynamicAttributes()
-    {
-        extract($this->samples);
-        $p = new Picture($path, $alt, $this->r, $this->b);
-
-        $this->r->shouldReceive('formatExists')
-            ->with($format)
-            ->andReturn(true)
-            ->shouldReceive('getPath')
-            ->with($path, $format)
-            ->andReturn($new_path);
-
-        $this->b->shouldReceive('attributes')
-            ->with(['alt'=>$alt, 'width'=>50, 'height'=>50])
-            ->andReturn($text_attrs);
-
-        $this->assertEquals($p->getTag($format), "<img src='{$new_path}'{$text_attrs}>");
-    }
-
-    /* *
-     * @ expectedException \Exception
-     * /
-    public function testThrowExceptionIfFormatDoesNotExist()
-    {
-        extract($this->samples);
-        $p = new Picture($path, $alt, $this->r, $this->b);
-        $wrong_format = 'Some format that does not exist';
-
-        $this->r->shouldReceive('formatExists')
-            ->with($wrong_format)
-            ->andReturn(false);
-
-        $p->getTag();
-    }
+     * @expectedException Hpkns\Picturesque\Exceptions\NotInPublicPathException
+     * @see realpath() in fakes/functions.php
      */
+    public function testFailsIfResizedPictureNotInPulicPath()
+    {
+        extract($this->getSampleValues());
+        $attributes['alt'] = $alt;
+
+        $this->r->shouldReceive('getResized')
+            ->andReturn($failing_path);
+
+        $b = new PictureBuilder($this->r, $this->b, $this->g);
+
+        $b->make($original_path, $format, $alt, $attributes, false);
+
+    }
+    /**
+     * @expectedException Hpkns\Picturesque\Exceptions\WrongPathException
+     * @see realpath() in fakes/functions.php
+     */
+    public function testFailsIfPictureDoesNotExists()
+    {
+        extract($this->getSampleValues());
+
+        $b = new PictureBuilder($this->r, $this->b, $this->g);
+
+        $b->make($failing_path);
+    }
 }
 

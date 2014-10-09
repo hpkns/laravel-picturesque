@@ -84,10 +84,11 @@ class PictureBuilder {
         // To create a "real" path suitable for the asset function
         // we must first remove the path to the public path directory
         $pos = strpos($path, public_path());
-        if($pos === 0){
-            return substr_replace($path, '', $pos, strlen(public_path()));
+        if($pos !== 0){
+            throw new Exceptions\NotInPublicPathException("The resized file is {$path} not in Laravel public_path. Well, it should be!");
         }
-        return $path;
+        return ltrim(substr_replace($path, '', $pos, strlen(public_path())), '/');
+
     }
 
     /**
