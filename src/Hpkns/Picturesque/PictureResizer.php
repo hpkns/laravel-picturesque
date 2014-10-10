@@ -33,6 +33,18 @@ class PictureResizer implements Contracts\PictureResizerContract {
     protected $sizeFormat = "%sx%s%s";
 
     /**
+     * Default size hash
+     *
+     * @var string
+     */
+    protected $defaultSize = [
+        'width'   => null,
+        'height'  => null,
+        'crop'    => false,
+        'filters' => [],
+    ];
+
+    /**
      * Initialise the instance
      *
      * @param  \Intervention\Image\ImageManager $manager
@@ -72,6 +84,8 @@ class PictureResizer implements Contracts\PictureResizerContract {
             return $path;
         }
 
+        $size = $this->regularizeSize($size);
+
         $output = $this->getOutputPath($path, $size_name);
 
         if( ! file_exists($output) || filemtime($path) > filemtime($output) || $force)
@@ -82,6 +96,32 @@ class PictureResizer implements Contracts\PictureResizerContract {
         return $output;
     }
 
+    public function regularizeSize($size)
+    {
+        if( ! isset($size['width']) && ! isset($size['height']))
+        {
+            throw new Exceptions\FormatDimentionMissing;
+        }
+
+        if(in_array('crop', $size) || in_array('cropped', $size))
+        {
+            $size['crop'] = true;
+        }
+
+        // Since we extract the return of this function we must make sure
+        // that keys present in the array won't cause a collision with a function
+        // latter on. To prevent this we make sure that the keys present in
+        // the returned array are limited to the same that are present in the default
+        // array, hence the array_intersect_key.
+        return array_intersect_key(
+            array_merge(
+                $this->defaultSize,
+                $size
+            ),
+            $this->defaultSize
+        );
+    }
+
     /**
      * Return the output path
      *
@@ -89,7 +129,7 @@ class PictureResizer implements Contracts\PictureResizerContract {
      * @param  string  $size_name
      * @return string
      */
-    protected function getOutputPath($file, $size_name)
+    public function getOutputPath($file, $size_name)
     {
         $infos = pathinfo($file);
         $prefix = '';
@@ -113,7 +153,7 @@ class PictureResizer implements Contracts\PictureResizerContract {
      * @param  string $size
      * @return array
      */
-    protected function getNamedSize($size)
+    public function getNamedSize($size)
     {
         if(isset($this->sizes[$size]))
         {
@@ -127,7 +167,7 @@ class PictureResizer implements Contracts\PictureResizerContract {
      * @param  array $size
      * @return string
      */
-    protected function getSizeName(array $size = [])
+    public function getSizeName(array $size = [])
     {
         return sprintf($this->sizeFormat,
             (isset($size['width']) ? $size['width'] : '-'),
@@ -144,12 +184,13 @@ class PictureResizer implements Contracts\PictureResizerContract {
      * @param  string $output
      * @return string
      */
-    protected function resize($input, array $format, $output = null)
+    public function resize($input, array $format, $output = null)
     {
+        extract($format);
+
         $img = $this->manager->make($input);
 
-        extract($format);
-        if(isset($crop) && $crop)
+        if($crop)
         {
             $img->fit($width, $height);
         }
