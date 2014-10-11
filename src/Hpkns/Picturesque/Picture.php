@@ -28,7 +28,7 @@ class Picture {
      */
     protected $builder;
 
-    public function __construct($url, $alt = null, Builder $builder = null)
+    public function __construct($url, $alt = null, PictureBuilder $builder = null)
     {
         $this->url = $url;
         $this->alt = $alt;
@@ -76,7 +76,7 @@ class Picture {
         {
            return $this->getTag($key, $args[0]);
         }
-        elseif(count($args) == 2)
+        else // count >= 2
         {
             return $this->getTag($key, $args[0], $args[1]);
         }
