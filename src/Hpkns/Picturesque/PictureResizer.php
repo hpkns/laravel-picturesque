@@ -159,6 +159,8 @@ class PictureResizer implements Contracts\PictureResizerContract {
         {
             return $this->sizes[$size];
         }
+
+        throw new Exceptions\UnknownFormatException("The format $size does not exists.");
     }
 
     /**

@@ -10,7 +10,7 @@ class PictureResizerTests extends \PHPUNIT_Framework_TestCase {
         'resized_path' => 'new/path/to/file.jpg',
         'format'     => 'thumbnail',
         'thumbnail'  => ['width' => 100],
-        'formats'    => [['width' => 100]],
+        'formats'    => ['thumbnail'=>['width' => 100]],
         'alt'        => 'Alternative text',
         'attributes' => ['class'=>'some-class'],
         'secure'     => true,
@@ -22,14 +22,27 @@ class PictureResizerTests extends \PHPUNIT_Framework_TestCase {
         m::close();
     }
 
-    public function __construct()
-    {
-        //$this->b = m::mock('Hpkns\Picturesque\PictureBuilder');
-    }
-
     public function testIsInstanciable()
     {
         $this->assertInstanceOf('Hpkns\Picturesque\PictureResizer', new PictureResizer(null));
+    }
+
+    public function testGetResized()
+    {
+        extract($this->sample);
+        $r = m::mock('Hpkns\Picturesque\PictureResizer[getOutputPath,resize]', [null, $formats]);
+        $r->shouldReceive('getOutputPath')
+            ->once()
+            ->andReturn('/vagrant/public/cached/file.jpg');
+
+        $this->assertEquals($r->getResized($path, $format),'/vagrant/public/cached/file.jpg');
+
+        $r->shouldReceive('getOutputPath')
+            ->once()
+            ->andReturn('/vagrant/public/uncached/file.jpg')
+            ->shouldReceive('resize')
+            ->once();
+        $this->assertEquals($r->getResized($path, $format),'/vagrant/public/uncached/file.jpg');
     }
 
     public function testReturnSamePathWhenFormatEmpty()
@@ -73,24 +86,35 @@ class PictureResizerTests extends \PHPUNIT_Framework_TestCase {
         $r = new PictureResizer($m);
 
         $m->shouldReceive('make')
+            ->twice()
             ->with($path)
             ->andReturn($i);
 
         $i
             ->shouldReceive('fit')
+            ->once()
             ->with(100, 200)
             ->shouldReceive('save')
+            ->once()
             ->with($resized_path);
 
         $r->resize($path, ['width'=>100, 'height'=>200, 'crop'=>true], $resized_path);
+
+        $constraint = function(){
+
+        };
 
         $i
             ->shouldReceive('resize')
-            ->with(100, 200, m::on(function(){}))
+            ->once()
+            ->with(100, 200, m::on(function($closure){
+                return true;
+            }))
             ->shouldReceive('save')
+            ->once()
             ->with($resized_path);
 
-        $r->resize($path, ['width'=>100, 'height'=>200, 'crop'=>true], $resized_path);
+        $r->resize($path, ['width'=>100, 'height'=>200, 'crop'=>false], $resized_path);
     }
 
     public function testGetNamedSize()
@@ -99,7 +123,43 @@ class PictureResizerTests extends \PHPUNIT_Framework_TestCase {
 
         $r = new PictureResizer(null, $formats);
 
-        //var_dump($r->getNamedSize($format));
+        $this->assertEquals($r->getNamedSize($format), $formats[$format]);
+    }
+
+    /**
+     * @expectedException Hpkns\Picturesque\Exceptions\UnknownFormatException
+     */
+    public function testUnknownFormatThrowsException()
+    {
+        $r = new PictureResizer();
+
+        $r->getNamedSize('Exception please!');
+    }
+
+    public function testGetSizeName()
+    {
+        $r = new PictureResizer();
+
+        $this->assertEquals('100x-', $r->getSizeName(['width'=>100]));
+        $this->assertEquals('-x100', $r->getSizeName(['height'=>100]));
+        $this->assertEquals('10x50-cropped', $r->getSizeName(['width'=>10, 'height'=>50, 'crop'=>true]));
+
+    }
+
+    public function testGetOutputPath()
+    {
+
+        $file = '/vagrant/public/images/picture.jpg';
+        $format = '100x200-cropped';
+        $cache = '/vagrant/public/images/cache';
+
+        $r = new PictureResizer();
+        $this->assertEquals($r->getOutputPath($file, $format), "/vagrant/public/images/picture-{$format}.jpg");
+
+        $r = new PictureResizer(null, [], $cache);
+        $this->assertEquals($r->getOutputPath($file, $format), "{$cache}/".md5($file)."-picture-{$format}.jpg");
+
+
     }
 }
 
