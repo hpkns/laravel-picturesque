@@ -1,10 +1,21 @@
 Picture management for Laravel
 ===================
-
+[![Latest Stable Version](https://poser.pugx.org/hpkns/laravel-front-matter/v/stable.svg)](https://packagist.org/packages/hpkns/picturesque)
+[![License](https://poser.pugx.org/hpkns/laravel-front-matter/license.svg)](https://packagist.org/packages/hpkns/picturesque)
+[![Build Status](https://travis-ci.org/hpkns/laravel-picturesque.svg?branch=master)](https://travis-ci.org/hpkns/laravel-picturesque)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/hpkns/laravel-picturesque/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/hpkns/laravel-picturesque/?branch=master)
 [![Build Status](https://scrutinizer-ci.com/g/hpkns/laravel-picturesque/badges/build.png?b=master)](https://scrutinizer-ci.com/g/hpkns/laravel-picturesque/build-status/master)
 
 Picturesque allows you to simply resize and create a link to the resized version of an image in one step.
+
+```
+use Hpkns\Picturesque\Picture;
+
+$my_picture = new Picture('/path/to/my/picture.jpg', 'My beautiful image');
+
+echo $my_picture->thumbnail;
+
+```
 
 - [Usage](#usage)
   - [The PictureBuilder](#the-picturebuilder)
