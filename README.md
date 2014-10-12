@@ -1,4 +1,4 @@
-Picture management for Laravel
+Picture resizing for Laravel
 ===================
 [![Latest Stable Version](https://poser.pugx.org/hpkns/picturesque/v/stable.svg)](https://packagist.org/packages/hpkns/picturesque)
 [![License](https://poser.pugx.org/hpkns/picturesque/license.svg)](https://packagist.org/packages/hpkns/picturesque)
@@ -102,7 +102,7 @@ You can now use this picture everywhere you need it, e.g. in your templates:
 
 `getResized()` can take two more optionnal arguments: an array containing a list of attributes that will be added to `<img>`, and a `$secure` switch to force the use of https.
 
-To make thing even simpler, you can simply use the format an attribute of the image. The previous example will become:
+To make thing even simpler, you can simply use the format as an attribute of the image. The previous example will become:
 
 ```php
 {{ $my_picture->thumbnail }}
