@@ -1,7 +1,7 @@
 Picture management for Laravel
 ===================
-[![Latest Stable Version](https://poser.pugx.org/hpkns/laravel-front-matter/v/stable.svg)](https://packagist.org/packages/hpkns/picturesque)
-[![License](https://poser.pugx.org/hpkns/laravel-front-matter/license.svg)](https://packagist.org/packages/hpkns/picturesque)
+[![Latest Stable Version](https://poser.pugx.org/hpkns/picturesque/v/stable.svg)](https://packagist.org/packages/hpkns/picturesque)
+[![License](https://poser.pugx.org/hpkns/picturesque/license.svg)](https://packagist.org/packages/hpkns/picturesque)
 [![Build Status](https://travis-ci.org/hpkns/laravel-picturesque.svg?branch=master)](https://travis-ci.org/hpkns/laravel-picturesque)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/hpkns/laravel-picturesque/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/hpkns/laravel-picturesque/?branch=master)
 [![Build Status](https://scrutinizer-ci.com/g/hpkns/laravel-picturesque/badges/build.png?b=master)](https://scrutinizer-ci.com/g/hpkns/laravel-picturesque/build-status/master)
