@@ -8,7 +8,7 @@ Picture resizing for Laravel
 
 Picturesque allows you to simply resize and create a link to the resized version of an image in one step.
 
-```
+```php
 use Hpkns\Picturesque\Picture;
 
 $my_picture = new Picture('/path/to/my/picture.jpg', 'My beautiful image');
