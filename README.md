@@ -6,6 +6,12 @@ Picture management for Laravel
 
 Picturesque allows you to simply resize and create a link to the resized version of an image in one step.
 
+- [Usage](#usage)
+  - [The PictureBuilder](#the-picturebuilder)
+  - [Named formats](#named-formats)
+  - [Using the Picture object](#using-the-picture-object)
+- [Instalation](#instalation) 
+
 ## Usage
 
 ### The PictureBuilder
