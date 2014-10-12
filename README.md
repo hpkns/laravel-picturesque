@@ -21,6 +21,7 @@ echo $my_picture->thumbnail;
   - [The PictureBuilder](#the-picturebuilder)
   - [Named formats](#named-formats)
   - [Using the Picture object](#using-the-picture-object)
+- [Configuration](#configuration)
 - [Instalation](#instalation) 
 
 ## Usage
@@ -121,6 +122,9 @@ $my_picture->thumbnail(['class'=>'thumbnail'])
 $my_picture->thumbnail(['class'=>'thumbnail'], true)
 
 ```
+## Configuration
+
+TODO
 
 ## Instalation 
 PHP 5.4+ or HHVM 3.2+, and Composer are required.
