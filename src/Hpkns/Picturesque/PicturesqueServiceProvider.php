@@ -31,7 +31,7 @@ class PicturesqueServiceProvider extends ServiceProvider {
                 $cache = public_path() . '/'. ltrim($cache,'/');
             }
 
-            return new PictureResizer(new \Intervention\Image\ImageManager, $this->app->config['picturesque::sizes'], $cache);
+            return new PictureResizer(new \Intervention\Image\ImageManager, $this->app->config['picturesque::formats'], $cache);
         });
 
         $this->app->bindShared('picturesque.builder', function($app){
