@@ -146,9 +146,9 @@ class PictureResizer implements Contracts\PictureResizerContract {
         {
             $folder = $this->cachePath;
             $prefix = md5($file) . '-';
-            if(strpos($folder, public_path()) === 0)
+            if(strpos($folder, public_path()) !== 0)
             {
-                $folder = public_path . '/' . ltrim($forlder, '/');
+                $folder = public_path() . '/' . ltrim($folder, '/');
             }
         }
         else
