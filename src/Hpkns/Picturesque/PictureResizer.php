@@ -195,6 +195,11 @@ class PictureResizer implements Contracts\PictureResizerContract {
         throw new Exceptions\UnknownFormatException("The format $size does not exists.");
     }
 
+    public function getFormatSize($format)
+    {
+        return array_intersect_key($this->getNamedSize($format), ['width'=>'', 'height'=>'']);
+    }
+
     /**
      * Create the name for a size when provided one as an array
      *

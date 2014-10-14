@@ -46,17 +46,19 @@ class PictureBuilder {
      * Return a resised image
      *
      * @param  string  $url
-     * @param  string  $size
+     * @param  string  $format
      * @param  string  $alt
      * @param  array   $attributes
      * @param  boolean $secure
      * @return string
      */
-    public function make($url, $size = 'full', $alt = null, $attributes = [], $secure = false)
+    public function make($url, $format = '', $alt = null, $attributes = [], $secure = false)
     {
         $attributes['alt'] = $alt;
 
-        $url = $this->getResized($url, $size);
+        $attributes = array_merge($attributes, $this->resizer->getFormatSize($format));
+
+        $url = $this->getResized($url, $format);
 
         return '<img src="'.$this->url->asset($url, $secure).'"'.$this->builder->attributes($attributes).'>';
     }
@@ -65,12 +67,12 @@ class PictureBuilder {
      * Users the resizer to resize the image
      *
      * @param  string $url
-     * @param  string $size
+     * @param  string $format
      * @return string
      */
-    protected function getResized($url, &$size)
+    protected function getResized($url, &$format)
     {
-        return $this->publicPath($this->resizer->getResized($this->realPath($url), $size));
+        return $this->publicPath($this->resizer->getResized($this->realPath($url), $format));
     }
 
     /**

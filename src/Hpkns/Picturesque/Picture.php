@@ -42,9 +42,9 @@ class Picture {
      * @param  array  $attributes
      * @return string
      */
-    public function getTag($size = 'full', $attributes = [], $secure = false)
+    public function getTag($format = 'full', $attributes = [], $secure = false)
     {
-        return $this->builder->make($this->url, $size, $this->alt, $attributes, $secure);
+        return $this->builder->make($this->url, $format, $this->alt, $attributes, $secure);
     }
 
     /**

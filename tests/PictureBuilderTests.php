@@ -54,7 +54,13 @@ class PictureBuilderTests extends \PHPUNIT_Framework_TestCase {
         extract($this->getSampleValues());
         $attributes['alt'] = $alt;
 
-        $this->r->shouldReceive('getResized')
+        $this->r
+            ->shouldReceive('getFormatSize')
+            ->once()
+            ->with($format)
+            ->andReturn([])
+            ->shouldReceive('getResized')
+            ->once()
             ->with($original_abspath, $format)
             ->andReturn($resized_abspath);
 
@@ -82,7 +88,12 @@ class PictureBuilderTests extends \PHPUNIT_Framework_TestCase {
         extract($this->getSampleValues());
         $attributes['alt'] = $alt;
 
-        $this->r->shouldReceive('getResized')
+        $this->r
+            ->shouldReceive('getFormatSize')
+            ->once()
+            ->with($format)
+            ->andReturn([])
+            ->shouldReceive('getResized')
             ->andReturn($failing_path);
 
         $b = new PictureBuilder($this->r, $this->b, $this->g);
@@ -99,6 +110,11 @@ class PictureBuilderTests extends \PHPUNIT_Framework_TestCase {
         extract($this->getSampleValues());
 
         $b = new PictureBuilder($this->r, $this->b, $this->g);
+
+        $this->r->shouldReceive('getFormatSize')
+            ->once()
+            ->with('')
+            ->andReturn([]);
 
         $b->make($failing_path);
     }
