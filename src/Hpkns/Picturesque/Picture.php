@@ -89,6 +89,14 @@ class Picture {
      */
     public function __toString()
     {
-        return $this->getTag('default');
+        try
+        {
+            return $this->getTag('default');
+        }
+        catch(\Exception $e)
+        {
+            return '';
+        };
+
     }
 }
