@@ -35,23 +35,23 @@ class PictureResizerTests extends \PHPUNIT_Framework_TestCase {
 
         $r->shouldReceive('getOutputPath')
             ->once()
-            ->andReturn('/vagrant/public/cached/file.jpg');
+            ->andReturn('/laravel/public/cached/file.jpg');
 
-        $this->assertEquals($r->getResized($path, $format),'/vagrant/public/cached/file.jpg');
-
-        $r->shouldReceive('getOutputPath')
-            ->once()
-            ->andReturn('/vagrant/public/uncached/file.jpg')
-            ->shouldReceive('resize')
-            ->once();
-        $this->assertEquals($r->getResized($path, $format),'/vagrant/public/uncached/file.jpg');
+        $this->assertEquals($r->getResized($path, $format),'/laravel/public/cached/file.jpg');
 
         $r->shouldReceive('getOutputPath')
             ->once()
-            ->andReturn('/vagrant/public/uncached/file.jpg')
+            ->andReturn('/laravel/public/uncached/file.jpg')
             ->shouldReceive('resize')
             ->once();
-        $this->assertEquals($r->getResized($path, 'default'),'/vagrant/public/uncached/file.jpg');
+        $this->assertEquals($r->getResized($path, $format),'/laravel/public/uncached/file.jpg');
+
+        $r->shouldReceive('getOutputPath')
+            ->once()
+            ->andReturn('/laravel/public/uncached/file.jpg')
+            ->shouldReceive('resize')
+            ->once();
+        $this->assertEquals($r->getResized($path, 'default'),'/laravel/public/uncached/file.jpg');
 
     }
 
@@ -67,22 +67,22 @@ class PictureResizerTests extends \PHPUNIT_Framework_TestCase {
     /**
      * @expectedException Hpkns\Picturesque\Exceptions\FormatDimentionMissing
      */
-    public function testRegularizeSize()
+    public function testregularizeFormat()
     {
         $r = new PictureResizer();
 
         $this->assertEquals(
-            $r->regularizeSize(['width'=>100]),
+            $r->regularizeFormat(['width'=>100]),
             ['width'=>100, 'height'=>null, 'crop'=> false, 'filters'=>[]]
         );
 
         $this->assertEquals(
-            $r->regularizeSize(['width'=>100, 'crop']),
+            $r->regularizeFormat(['width'=>100, 'crop']),
             ['width' => 100, 'height' => null, 'crop' => true, 'filters' => []]
         );
 
         // To throw an exception. No code after this line will be executed
-        $r->regularizeSize([]);
+        $r->regularizeFormat([]);
     }
 
 
@@ -127,30 +127,30 @@ class PictureResizerTests extends \PHPUNIT_Framework_TestCase {
         $r->resize($path, ['width'=>100, 'height'=>200, 'crop'=>false], $resized_path);
     }
 
-    public function testGetDefaultSizeName()
+    public function testGetDefaultFormatName()
     {
         extract($this->sample);
 
         $r = new PictureResizer(null, $formats, null, 'large');
 
-        $this->assertEquals('large', $r->getDefaultSizeName());
+        $this->assertEquals('large', $r->getDefaultFormatName());
 
         $r = new PictureResizer(null, $formats);
 
-        $this->assertEquals($format, $r->getDefaultSizeName());
+        $this->assertEquals($format, $r->getDefaultFormatName());
 
         $r = new PictureResizer(null, []);
 
-        $this->assertEquals(false, $r->getDefaultSizeName());
+        $this->assertEquals(false, $r->getDefaultFormatName());
 
     }
-    public function testGetNamedSize()
+    public function testGetNamedFormat()
     {
         extract($this->sample);
 
         $r = new PictureResizer(null, $formats);
 
-        $this->assertEquals($r->getNamedSize($format), $formats[$format]);
+        $this->assertEquals($r->getNamedFormat($format), $formats[$format]);
     }
 
     /**
@@ -160,28 +160,28 @@ class PictureResizerTests extends \PHPUNIT_Framework_TestCase {
     {
         $r = new PictureResizer();
 
-        $r->getNamedSize('Exception please!');
+        $r->getNamedFormat('Exception please!');
     }
 
-    public function testGetSizeName()
+    public function testgetFormatName()
     {
         $r = new PictureResizer();
 
-        $this->assertEquals('100x-', $r->getSizeName(['width'=>100]));
-        $this->assertEquals('-x100', $r->getSizeName(['height'=>100]));
-        $this->assertEquals('10x50-cropped', $r->getSizeName(['width'=>10, 'height'=>50, 'crop'=>true]));
+        $this->assertEquals('100x-', $r->getFormatName(['width'=>100]));
+        $this->assertEquals('-x100', $r->getFormatName(['height'=>100]));
+        $this->assertEquals('10x50-cropped', $r->getFormatName(['width'=>10, 'height'=>50, 'crop'=>true]));
 
     }
 
     public function testGetOutputPath()
     {
 
-        $file = '/vagrant/public/images/picture.jpg';
+        $file = '/laravel/public/images/picture.jpg';
         $format = '100x200-cropped';
-        $cache = '/vagrant/public/images/cache';
+        $cache = '/laravel/public/images/cache';
 
         $r = new PictureResizer();
-        $this->assertEquals($r->getOutputPath($file, $format), "/vagrant/public/images/picture-{$format}.jpg");
+        $this->assertEquals($r->getOutputPath($file, $format), "/laravel/public/images/picture-{$format}.jpg");
 
         $r = new PictureResizer(null, [], $cache);
         $this->assertEquals($r->getOutputPath($file, $format), "{$cache}/".md5($file)."-picture-{$format}.jpg");

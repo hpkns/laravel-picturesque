@@ -42,7 +42,7 @@ class Picture {
      * @param  array  $attributes
      * @return string
      */
-    public function getTag($format = 'full', $attributes = [], $secure = false)
+    public function getTag($format, $attributes = [], $secure = false)
     {
         return $this->builder->make($this->url, $format, $this->alt, $attributes, $secure);
     }
@@ -70,11 +70,11 @@ class Picture {
     {
         if(count($args) == 0)
         {
-           return $this->getTag($key);
+            return $this->getTag($key);
         }
         elseif(count($args) == 1)
         {
-           return $this->getTag($key, $args[0]);
+            return $this->getTag($key, $args[0]);
         }
         else // count >= 2
         {

@@ -6,8 +6,8 @@ interface PictureResizerContract {
      * Resize an image and returns the path to the newly created one
      *
      * @param  string $path
-     * @param  mixed  $size
+     * @param  mixed  $formatatat
      * @return string
      */
-    public function getResized($path, $size);
+    public function getResized($path, $format);
 }

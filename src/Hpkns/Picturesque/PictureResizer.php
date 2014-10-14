@@ -5,11 +5,11 @@ use Intervention\Image\ImageManager;
 class PictureResizer implements Contracts\PictureResizerContract {
 
     /**
-     *  A list of sizes known to the instance
+     *  A list of formats known to the instance
      *
      * @var array
      */
-    protected $sizes;
+    protected $formats;
 
     /**
      * The path to the cache folder from the public directory
@@ -26,25 +26,25 @@ class PictureResizer implements Contracts\PictureResizerContract {
     protected $manager;
 
     /**
-     * The name of the default size format
+     * The name of the default format format
      *
      * @var string
      */
-    protected $defaultSizeName;
+    protected $defaultFormat;
 
     /**
-     * Size format
+     * Format sprintf model
      *
      * @var string
      */
-    protected $sizeFormat = "%sx%s%s";
+    protected $formatNameModel = "%sx%s%s";
 
     /**
-     * Default size hash
+     * Default format hash
      *
      * @var string
      */
-    protected $defaultSize = [
+    protected $defaultFormatValues = [
         'width'   => null,
         'height'  => null,
         'crop'    => false,
@@ -59,61 +59,61 @@ class PictureResizer implements Contracts\PictureResizerContract {
      * @param  string $cache
      * @return void
      */
-    public function __construct(ImageManager $manager = null, $sizes = [], $cache = null, $defaultSizeName = '')
+    public function __construct(ImageManager $manager = null, $formats = [], $cache = null, $defaultFormat = '')
     {
         $this->manager = $manager ?: new ImageManager;
-        $this->sizes = $sizes;
+        $this->formats = $formats;
         $this->cachePath = $cache;
-        $this->defaultSizeName = $defaultSizeName;
+        $this->defaultFormat = $defaultFormat;
     }
 
     /**
      * Return a resized version of the picture
      *
      * @param  string  $path
-     * @param  array   $size
+     * @param  array   $format
      * @param  boolean $force
      * @return string
      */
-    public function getResized($path, $size = [], $force = false)
+    public function getResized($path, $format = [], $force = false)
     {
-        if(is_string($size))
+        if(is_string($format))
         {
-            $size_name = $size != 'default' ? $size : $this->getDefaultSizeName();
-            $size = $this->getNamedSize($size_name);
+            $format_name = $format;
+            $format = $this->getNamedFormat($format_name);
         }
         else
         {
-            $size_name = $this->getSizeName($size);
+            $format_name = $this->getFormatName($format);
         }
 
-        if(empty($size) || $size_name == 'full')
+        if(empty($format) || $format_name == 'full')
         {
             return $path;
         }
 
-        $size = $this->regularizeSize($size);
+        $format = $this->regularizeFormat($format);
 
-        $output = $this->getOutputPath($path, $size_name);
+        $output = $this->getOutputPath($path, $format_name);
 
         if( ! file_exists($output) || filemtime($path) > filemtime($output) || $force)
         {
-            $this->resize($path, $size, $output);
+            $this->resize($path, $format, $output);
         }
 
         return $output;
     }
 
-    public function regularizeSize($size)
+    public function regularizeFormat($format)
     {
-        if( ! isset($size['width']) && ! isset($size['height']))
+        if( ! isset($format['width']) && ! isset($format['height']))
         {
             throw new Exceptions\FormatDimentionMissing;
         }
 
-        if(in_array('crop', $size) || in_array('cropped', $size))
+        if(in_array('crop', $format) || in_array('cropped', $format))
         {
-            $size['crop'] = true;
+            $format['crop'] = true;
         }
 
         // Since we extract the return of this function we must make sure
@@ -123,10 +123,10 @@ class PictureResizer implements Contracts\PictureResizerContract {
         // array, hence the array_intersect_key.
         return array_intersect_key(
             array_merge(
-                $this->defaultSize,
-                $size
+                $this->defaultFormatValues,
+                $format
             ),
-            $this->defaultSize
+            $this->defaultFormatValues
         );
     }
 
@@ -134,10 +134,10 @@ class PictureResizer implements Contracts\PictureResizerContract {
      * Return the output path
      *
      * @param  string $file
-     * @param  string  $size_name
+     * @param  string  $format_name
      * @return string
      */
-    public function getOutputPath($file, $size_name)
+    public function getOutputPath($file, $format_name)
     {
         $infos = pathinfo($file);
         $prefix = '';
@@ -156,62 +156,67 @@ class PictureResizer implements Contracts\PictureResizerContract {
             $folder = $infos['dirname'];
         }
 
-        return "{$folder}/{$prefix}{$infos['filename']}-{$size_name}.{$infos['extension']}";
+        return "{$folder}/{$prefix}{$infos['filename']}-{$format_name}.{$infos['extension']}";
     }
 
     /**
-     * Return the default size name
+     * Return the default format name
      *
      * @return string
      */
-    public function getDefaultSizeName()
+    public function getDefaultFormatName()
     {
-        if(empty($this->defaultSizeName))
+        if(empty($this->defaultFormat))
         {
-            if(count($this->sizes))
+            if(count($this->formats))
             {
-                return array_keys($this->sizes)[0];
+                return array_keys($this->formats)[0];
             }
 
             return false;
         }
 
-        return $this->defaultSizeName;
+        return $this->defaultFormat;
     }
 
     /**
-     * Return the registered size from its name
+     * Return a registered format from its name
      *
-     * @param  string $size
+     * @param  string $format
      * @return array
      */
-    public function getNamedSize($size)
+    public function getNamedFormat($format)
     {
-        if(isset($this->sizes[$size]))
+        if($format == 'default')
         {
-            return $this->sizes[$size];
+            $format = $this->getDefaultFormatName();
         }
 
-        throw new Exceptions\UnknownFormatException("The format $size does not exists.");
+        if(isset($this->formats[$format]))
+        {
+            return $this->formats[$format];
+        }
+
+        throw new Exceptions\UnknownFormatException("The format $format does not exists.");
     }
 
     public function getFormatSize($format)
     {
-        return array_intersect_key($this->getNamedSize($format), ['width'=>'', 'height'=>'']);
+        return array_intersect_key($this->getNamedFormat($format), ['width'=>'', 'height'=>'']);
     }
 
     /**
-     * Create the name for a size when provided one as an array
+     * Create the name for a format when provided one as an array
      *
-     * @param  array $size
+     * @param  array $format
      * @return string
      */
-    public function getSizeName(array $size = [])
+    public function getFormatName(array $format = [])
     {
-        return sprintf($this->sizeFormat,
-            (isset($size['width']) ? $size['width'] : '-'),
-            (isset($size['height']) ? $size['height'] : '-'),
-            (isset($size['crop']) && $size['crop'] ? '-cropped' : '')
+        return sprintf($this->formatNameModel,
+            (isset($format['width']) ? $format['width'] : '-'),
+            (isset($format['height']) ? $format['height'] : '-'),
+            (isset($format['crop']) && $format['crop'] ? '-cropped' : '')
         );
     }
 

@@ -19,7 +19,7 @@ function realpath($path)
 function pathinfo($file)
 {
     return [
-        'dirname'   => '/vagrant/public/images',
+        'dirname'   => '/laravel/public/images',
         'filename'  => 'picture',
         'extension' => 'jpg',
     ];
@@ -28,7 +28,7 @@ function pathinfo($file)
 
 function file_exists($path)
 {
-    if($path == '/vagrant/public/cached/file.jpg')
+    if($path == '/laravel/public/cached/file.jpg')
     {
         return true;
     }
@@ -36,7 +36,7 @@ function file_exists($path)
 
 function filemtime($path)
 {
-    if($path == '/vagrant/public/cached/file.jpg')
+    if($path == '/laravel/public/cached/file.jpg')
         return 2;
 
     return 1;

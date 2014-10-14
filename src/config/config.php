@@ -4,19 +4,20 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | File sizes
+    | Formats
     |--------------------------------------------------------------------------
     |
-    | A list of named formats to be used by a picture resizer. The width and
-    | height keys are mendatory, even though the can be assigned a velue of
-    | null. Crop can be ommited. It is the same as setting it to false (no crop).
+    | A list of named formats to be used by a picture resizer. The width and the
+    | height cannot be ommited in a format and non cropped formats require to have
+    | both defined. Crop can be used as a flag ('crop'), or can be assigned a
+    | boolean value ('crop'=>true).
     |
     | Exemple:
     |
     | 'small' => [
     |   'width'  => 200,
     |   'height' => 300,
-    |   'crop'   => true
+    |   'crop'
     | ]
     |
     */

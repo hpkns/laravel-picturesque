@@ -49,11 +49,6 @@ class PictureTests extends \PHPUNIT_Framework_TestCase {
             ->shouldReceive('make')
             ->once()
             ->with($path, $format, $alt, [], false)
-            ->andReturn($tag)
-            // 4: $format (full), $attributes and $secure are implicit
-            ->shouldReceive('make')
-            ->once()
-            ->with($path, 'full', $alt, [], false)
             ->andReturn($tag);
 
         // 1:
@@ -62,8 +57,6 @@ class PictureTests extends \PHPUNIT_Framework_TestCase {
         $this->assertEquals($tag, $p->getTag($format, $attributes));
         // 3:
         $this->assertEquals($tag, $p->getTag($format));
-        // 4:
-        $this->assertEquals($tag, $p->getTag());
     }
 
     public function testDynamicProperties()
