@@ -24,14 +24,12 @@ class PicturesqueServiceProvider extends ServiceProvider {
 	public function register()
 	{
         $this->app->bind('Hpkns\Picturesque\Contracts\PictureResizerContract', function(){
-            $cache = $this->app->config['picturesque::cache'];
-
-            if( ! empty($cache))
-            {
-                $cache = public_path() . '/'. ltrim($cache,'/');
-            }
-
-            return new PictureResizer(new \Intervention\Image\ImageManager, $this->app->config['picturesque::formats'], $cache), $this->app->config['picturesque::default-format'];
+            return new PictureResizer(
+                new \Intervention\Image\ImageManager,
+                $this->app->config['picturesque::formats'],
+                $this->app->config['picturesque::cache'],
+                $this->app->config['picturesque::default-format']
+            );
         });
 
         $this->app->bindShared('picturesque.builder', function($app){
