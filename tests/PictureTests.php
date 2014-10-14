@@ -37,18 +37,22 @@ class PictureTests extends \PHPUNIT_Framework_TestCase {
         $this->b
             // 1: Every arguments are explicit
             ->shouldReceive('make')
+            ->once()
             ->with($path, $format, $alt, $attributes, $secure)
             ->andReturn($tag)
             // 2: $secure is implicit (false)
             ->shouldReceive('make')
+            ->once()
             ->with($path, $format, $alt, $attributes, false)
             ->andReturn($tag)
             // 3: $attributes ([]) and $secure a implicit
             ->shouldReceive('make')
+            ->once()
             ->with($path, $format, $alt, [], false)
             ->andReturn($tag)
             // 4: $format (full), $attributes and $secure are implicit
             ->shouldReceive('make')
+            ->once()
             ->with($path, 'full', $alt, [], false)
             ->andReturn($tag);
 
@@ -69,6 +73,7 @@ class PictureTests extends \PHPUNIT_Framework_TestCase {
 
         $this->b
             ->shouldReceive('make')
+            ->once()
             ->with($path, $format, $alt, [], false)
             ->andReturn($tag);
 
@@ -83,14 +88,17 @@ class PictureTests extends \PHPUNIT_Framework_TestCase {
         $this->b
             // 1: Everything is implicit
             ->shouldReceive('make')
+            ->once()
             ->with($path, $format, $alt, [], false)
             ->andReturn($tag)
             // 2: $attributes is explicit
             ->shouldReceive('make')
+            ->once()
             ->with($path, $format, $alt, $attributes, false)
             ->andReturn($tag)
             // 3: $attributes and $secure are explicit
             ->shouldReceive('make')
+            ->once()
             ->with($path, $format, $alt, $attributes, $secure)
             ->andReturn($tag);
 
@@ -100,6 +108,20 @@ class PictureTests extends \PHPUNIT_Framework_TestCase {
         $this->assertEquals($tag, $p->__call($format,[$attributes]));
         // 3:
         $this->assertEquals($tag, $p->__call($format,[$attributes, $secure]));
+    }
+
+    public function testToString()
+    {
+        extract($this->sample);
+        $p = new Picture($path, $alt, $this->b);
+
+        $this->b
+            ->shouldReceive('make')
+            ->once()
+            ->with($path, 'default', $alt, [], false)
+            ->andReturn($tag);
+
+        $this->assertEquals($tag, (string)$p);
     }
 }
 

@@ -81,4 +81,14 @@ class Picture {
             return $this->getTag($key, $args[0], $args[1]);
         }
     }
+
+    /**
+     * Convert the picture to a string
+     *
+     * @return string
+     */
+    public function __toString()
+    {
+        return $this->getTag('default');
+    }
 }

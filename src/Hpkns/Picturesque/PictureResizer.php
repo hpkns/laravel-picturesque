@@ -26,6 +26,13 @@ class PictureResizer implements Contracts\PictureResizerContract {
     protected $manager;
 
     /**
+     * The name of the default size format
+     *
+     * @var string
+     */
+    protected $defaultSizeName;
+
+    /**
      * Size format
      *
      * @var string
@@ -52,11 +59,12 @@ class PictureResizer implements Contracts\PictureResizerContract {
      * @param  string $cache
      * @return void
      */
-    public function __construct(ImageManager $manager = null, $sizes = [], $cache = null)
+    public function __construct(ImageManager $manager = null, $sizes = [], $cache = null, $defaultSizeName = '')
     {
         $this->manager = $manager ?: new ImageManager;
         $this->sizes = $sizes;
         $this->cachePath = $cache;
+        $this->defaultSizeName = $defaultSizeName;
     }
 
     /**
@@ -71,8 +79,8 @@ class PictureResizer implements Contracts\PictureResizerContract {
     {
         if(is_string($size))
         {
-            $size_name = $size;
-            $size = $this->getNamedSize($size);
+            $size_name = $size != 'default' ? $size : $this->getDefaultSizeName();
+            $size = $this->getNamedSize($size_name);
         }
         else
         {
@@ -145,6 +153,26 @@ class PictureResizer implements Contracts\PictureResizerContract {
         }
 
         return "{$folder}/{$prefix}{$infos['filename']}-{$size_name}.{$infos['extension']}";
+    }
+
+    /**
+     * Return the default size name
+     *
+     * @return string
+     */
+    public function getDefaultSizeName()
+    {
+        if(empty($this->defaultSizeName))
+        {
+            if(count($this->sizes))
+            {
+                return array_keys($this->sizes)[0];
+            }
+
+            return false;
+        }
+
+        return $this->defaultSizeName;
     }
 
     /**

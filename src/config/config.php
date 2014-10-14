@@ -27,6 +27,17 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Default format
+    |--------------------------------------------------------------------------
+    |
+    | The name of the format used whe __toString() is called on a Picture.
+    | If left blank, the fist found format will be used
+    |
+     */
+    'default-format' => '',
+
+    /*
+    |--------------------------------------------------------------------------
     | Cache Path
     |--------------------------------------------------------------------------
     |
@@ -39,6 +50,9 @@ return [
     | If ommited or set to null, it will cause PictureResizer to store resized
     | images is the same folder as their source.
     |
+    | Exemple:
+    |
+    | 'cache' => '/images/cache',
     */
-    'cache' => '/images/cache',
+    'cache' => null,
 ];

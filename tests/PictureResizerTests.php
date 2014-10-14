@@ -10,7 +10,7 @@ class PictureResizerTests extends \PHPUNIT_Framework_TestCase {
         'resized_path' => 'new/path/to/file.jpg',
         'format'     => 'thumbnail',
         'thumbnail'  => ['width' => 100],
-        'formats'    => ['thumbnail'=>['width' => 100]],
+        'formats'    => ['thumbnail'=>['width' => 100], 'large'=>[600, 200]],
         'alt'        => 'Alternative text',
         'attributes' => ['class'=>'some-class'],
         'secure'     => true,
@@ -30,7 +30,9 @@ class PictureResizerTests extends \PHPUNIT_Framework_TestCase {
     public function testGetResized()
     {
         extract($this->sample);
+
         $r = m::mock('Hpkns\Picturesque\PictureResizer[getOutputPath,resize]', [null, $formats]);
+
         $r->shouldReceive('getOutputPath')
             ->once()
             ->andReturn('/vagrant/public/cached/file.jpg');
@@ -43,6 +45,14 @@ class PictureResizerTests extends \PHPUNIT_Framework_TestCase {
             ->shouldReceive('resize')
             ->once();
         $this->assertEquals($r->getResized($path, $format),'/vagrant/public/uncached/file.jpg');
+
+        $r->shouldReceive('getOutputPath')
+            ->once()
+            ->andReturn('/vagrant/public/uncached/file.jpg')
+            ->shouldReceive('resize')
+            ->once();
+        $this->assertEquals($r->getResized($path, 'default'),'/vagrant/public/uncached/file.jpg');
+
     }
 
     public function testReturnSamePathWhenFormatEmpty()
@@ -117,6 +127,23 @@ class PictureResizerTests extends \PHPUNIT_Framework_TestCase {
         $r->resize($path, ['width'=>100, 'height'=>200, 'crop'=>false], $resized_path);
     }
 
+    public function testGetDefaultSizeName()
+    {
+        extract($this->sample);
+
+        $r = new PictureResizer(null, $formats, null, 'large');
+
+        $this->assertEquals('large', $r->getDefaultSizeName());
+
+        $r = new PictureResizer(null, $formats);
+
+        $this->assertEquals($format, $r->getDefaultSizeName());
+
+        $r = new PictureResizer(null, []);
+
+        $this->assertEquals(false, $r->getDefaultSizeName());
+
+    }
     public function testGetNamedSize()
     {
         extract($this->sample);
@@ -158,7 +185,6 @@ class PictureResizerTests extends \PHPUNIT_Framework_TestCase {
 
         $r = new PictureResizer(null, [], $cache);
         $this->assertEquals($r->getOutputPath($file, $format), "{$cache}/".md5($file)."-picture-{$format}.jpg");
-
 
     }
 }
