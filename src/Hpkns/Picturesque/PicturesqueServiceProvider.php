@@ -33,8 +33,11 @@ class PicturesqueServiceProvider extends ServiceProvider {
         });
 
         $this->app->bindShared('picturesque.builder', function($app){
+            echo "zey love me";
             return new PictureBuilder($app['Hpkns\Picturesque\Contracts\PictureResizerContract'], $app['html'], $app['url']);
         });
+
+        $this->app->alias('Hpkns\Picturesque\PictureBuilder', 'picturesque.builder');
     }
 
     /**
