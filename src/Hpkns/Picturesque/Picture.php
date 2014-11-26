@@ -32,7 +32,7 @@ class Picture {
     {
         $this->url = $url;
         $this->alt = $alt;
-        $this->builder = $builder ?: \App::make('Hpkns\Picturesque\PictureBuilderlder');
+        $this->builder = $builder ?: \App::make('Hpkns\Picturesque\PictureBuilder');
     }
 
     /**
