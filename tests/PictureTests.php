@@ -59,6 +59,22 @@ class PictureTests extends \PHPUNIT_Framework_TestCase {
         $this->assertEquals($tag, $p->getTag($format));
     }
 
+    public function testGetUrl()
+    {
+        extract($this->sample);
+
+        $resized = "path";
+        $this->b
+            ->shouldReceive('makeUrl')
+            ->once()
+            ->andReturn($resized);
+
+        $p = new Picture($path, $alt, $this->b);
+
+        $r = $p->getUrl('thumbnail');
+        $this->assertEquals($r, $resized);
+    }
+
     public function testDynamicProperties()
     {
         extract($this->sample);

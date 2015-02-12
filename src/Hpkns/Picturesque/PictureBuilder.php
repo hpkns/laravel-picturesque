@@ -64,6 +64,20 @@ class PictureBuilder {
     }
 
     /**
+     * Return the URL of the picture at a given size
+     *
+     * @param  string $format
+     * @param  boolean $secure
+     * @return string
+     */
+    public function makeUrl($url, $format, $secure)
+    {
+        $url = $this->getResized($url, $format);
+
+        return $this->url->asset($url, $secure);
+    }
+
+    /**
      * Users the resizer to resize the image
      *
      * @param  string $url

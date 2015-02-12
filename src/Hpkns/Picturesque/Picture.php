@@ -38,13 +38,26 @@ class Picture {
     /**
      * Return the tag for the desired format
      *
-     * @param  string $format
-     * @param  array  $attributes
+     * @param  string  $format
+     * @param  array   $attributes
+     * @param  boolean $secure
      * @return string
      */
     public function getTag($format, $attributes = [], $secure = false)
     {
         return $this->builder->make($this->url, $format, $this->alt, $attributes, $secure);
+    }
+
+    /**
+     * Return the URL of the picture at a given size
+     *
+     * @param  string $format
+     * @param  boolean $secure
+     * @return string
+     */
+    public function getUrl($format, $secure = false)
+    {
+        return $this->builder->makeUrl($this->url, $format, $secure);
     }
 
     /**
