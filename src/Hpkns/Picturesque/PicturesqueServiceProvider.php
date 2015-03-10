@@ -13,7 +13,9 @@ class PicturesqueServiceProvider extends ServiceProvider {
 
     public function boot()
     {
-        $this->package('hpkns/picturesque');
+        $this->publishes([
+                __DIR__.'/../../config/default.php' => config_path('picturesque.php')
+        ], 'config');
     }
 
 	/**
@@ -26,14 +28,13 @@ class PicturesqueServiceProvider extends ServiceProvider {
         $this->app->bind('Hpkns\Picturesque\Contracts\PictureResizerContract', function(){
             return new PictureResizer(
                 new \Intervention\Image\ImageManager,
-                $this->app->config['picturesque::formats'],
-                $this->app->config['picturesque::cache'],
-                $this->app->config['picturesque::default-format']
+                $this->app->config['picturesque.formats'],
+                $this->app->config['picturesque.cache'],
+                $this->app->config['picturesque.default-format']
             );
         });
 
         $this->app->bindShared('picturesque.builder', function($app){
-            echo "zey love me";
             return new PictureBuilder($app['Hpkns\Picturesque\Contracts\PictureResizerContract'], $app['html'], $app['url']);
         });
 
