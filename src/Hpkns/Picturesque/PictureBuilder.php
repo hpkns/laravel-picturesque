@@ -56,7 +56,7 @@ class PictureBuilder {
     {
         $attributes['alt'] = $alt;
 
-        $attributes = array_merge($attributes, $this->resizer->getFormatSize($format));
+        // $attributes = array_merge($attributes, $this->resizer->getFormatSize($format));
 
         $url = $this->getResized($url, $format);
 
