@@ -31,14 +31,12 @@ class PictureBuilder {
      * Initialize the instance
      *
      * @param  \Contracts\PictureResizerContract $resizer
-     * @param  \Illuminate\Html\HtmlBuilder      $builder
      * @param  \Illuminate\Routing\UrlGenerator  $url
      * @return void
      */
-    public function __construct(Resizer $resizer = null, HtmlBuilder $builder = null, UrlGenerator $url = null)
+    public function __construct(Resizer $resizer = null, UrlGenerator $url = null)
     {
         $this->resizer  = $resizer;
-        $this->builder  = $builder;
         $this->url      = $url;
     }
 
@@ -54,13 +52,53 @@ class PictureBuilder {
      */
     public function make($url, $format = '', $alt = null, $attributes = [], $secure = false)
     {
-        $attributes['alt'] = $alt;
-
         // $attributes = array_merge($attributes, $this->resizer->getFormatSize($format));
 
-        $url = $this->getResized($url, $format);
+        $attributes['alt'] = $alt;
+        $attributes['src'] = $this->url->asset($this->getResized($url, $format), $secure);
+        $attributes = $this->attributes($attributes);
 
-        return '<img src="'.$this->url->asset($url, $secure).'"'.$this->builder->attributes($attributes).'>';
+        return "<img{$attributes}>";
+    }
+
+    /**
+     * Build an HTML attribute string from an array.
+     *
+     * @param array $attributes
+     *
+     * @return string
+     */
+    public function attributes($attributes)
+    {
+        $html = [];
+        foreach ((array) $attributes as $key => $value) {
+            $element = $this->attributeElement($key, $value);
+            if (! is_null($element)) {
+                $html[] = $element;
+            }
+        }
+        return count($html) > 0 ? ' ' . implode(' ', $html) : '';
+    }
+
+    /**
+     * Build a single attribute element.
+     *
+     * @param string $key
+     * @param string $value
+     *
+     * @return string
+     */
+    protected function attributeElement($key, $value)
+    {
+        // For numeric keys we will assume that the key and the value are the same
+        // as this will convert HTML attributes such as "required" to a correct
+        // form like required="required" instead of using incorrect numerics.
+        if (is_numeric($key)) {
+            $key = $value;
+        }
+        if (! is_null($value)) {
+            return $key . '="' . e($value) . '"';
+        }
     }
 
     /**

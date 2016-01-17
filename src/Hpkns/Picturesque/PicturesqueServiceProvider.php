@@ -1,8 +1,11 @@
-<?php namespace Hpkns\Picturesque;
+<?php
+
+namespace Hpkns\Picturesque;
 
 use Illuminate\Support\ServiceProvider;
 
-class PicturesqueServiceProvider extends ServiceProvider {
+class PicturesqueServiceProvider extends ServiceProvider
+{
 
 	/**
 	 * Indicates if loading of the provider is deferred.
@@ -26,16 +29,20 @@ class PicturesqueServiceProvider extends ServiceProvider {
 	public function register()
 	{
         $this->app->bind('Hpkns\Picturesque\Contracts\PictureResizerContract', function(){
+            $config = config('picturesque');
             return new PictureResizer(
                 new \Intervention\Image\ImageManager,
-                $this->app->config['picturesque.formats'],
-                $this->app->config['picturesque.cache'],
-                $this->app->config['picturesque.default-format']
+                $config['formats'],
+                $config['cache'],
+                $config['default-format']
             );
         });
 
-        $this->app->bindShared('picturesque.builder', function($app){
-            return new PictureBuilder($app['Hpkns\Picturesque\Contracts\PictureResizerContract'], $app['html'], $app['url']);
+        $this->app->singleton('picturesque.builder', function($app){
+            return new PictureBuilder(
+                $app['Hpkns\Picturesque\Contracts\PictureResizerContract'],
+                $app['url']
+            );
         });
 
         $this->app->alias('Hpkns\Picturesque\PictureBuilder', 'picturesque.builder');
