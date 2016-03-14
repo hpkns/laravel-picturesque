@@ -53,5 +53,7 @@ class PictureResizer implements Contracts\PictureResizerContract
         }
 
         $img->save($output);
+
+        return $output;
     }
 }

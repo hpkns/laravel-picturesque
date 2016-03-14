@@ -45,7 +45,7 @@ class Picture
      *
      * @return string
      */
-    public function getTag($format, $attributes = [], $secure = false)
+    public function getTag($format = null, $attributes = [], $secure = false)
     {
         return $this->builder->make($this->url, $format, $this->alt, $attributes, $secure);
     }
@@ -58,9 +58,22 @@ class Picture
      *
      * @return string
      */
-    public function getUrl($format, $secure = false)
+    public function getUrl($format = null, $secure = false)
     {
         return $this->builder->makeUrl($this->url, $format, $secure);
+    }
+
+    /**
+     * Return the Path of the picture at a given size.
+     *
+     * @param string $format
+     * @param bool   $secure
+     *
+     * @return string
+     */
+    public function getPath($format = null)
+    {
+        return $this->builder->makePath($this->url, $format);
     }
 
     /**

@@ -65,6 +65,13 @@ class PictureBuilder
         return "<img{$attributes}>";
     }
 
+    /**
+     * Return the image’s size attributes.
+     *
+     * @param  array  $format
+     * @param  string $image
+     * @return array
+     */
     public function getSize($format, $image)
     {
         if ($format['crop']) {
@@ -82,13 +89,30 @@ class PictureBuilder
      *
      * @return string
      */
-    public function makeUrl($url, $format, $secure)
+    public function makeUrl($url, $format = null, $secure = false)
     {
         $format = $this->formats->get($format);
 
         $url = $this->getResized($url, $format);
 
         return asset(str_replace(public_path(), '', $url), $secure);
+    }
+
+    /**
+     * Return the URL of the picture at a given size.
+     *
+     * @param string $format
+     * @param bool   $secure
+     *
+     * @return string
+     */
+    public function makePath($url, $format = null)
+    {
+        $format = $this->formats->get($format);
+
+        $path = $this->getResized($url, $format);
+
+        return $path;
     }
 
     /**
