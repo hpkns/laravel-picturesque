@@ -1,30 +1,31 @@
-<?php namespace Hpkns\Picturesque;
+<?php
+
+namespace Hpkns\Picturesque;
 
 use Illuminate\Html\HtmlBuilder as Builder;
 
-class Picture {
-
+class Picture
+{
     /**
-     * The link to the original file
+     * The link to the original file.
      *
      * @var string
      */
     protected $url;
 
     /**
-     * The alt attribute
+     * The alt attribute.
      *
      * @var string
      */
     protected $alt;
 
     /**
-     * An HTML builder to parse html attributes
+     * An HTML builder to parse html attributes.
      *
-     * @param  string                     $url
-     * @param  string                     $alt
-     * @param  \Hpkns\Picturesque\Resizer $builder
-     * @return void
+     * @param string                     $url
+     * @param string                     $alt
+     * @param \Hpkns\Picturesque\Resizer $builder
      */
     protected $builder;
 
@@ -36,11 +37,12 @@ class Picture {
     }
 
     /**
-     * Return the tag for the desired format
+     * Return the tag for the desired format.
      *
-     * @param  string  $format
-     * @param  array   $attributes
-     * @param  boolean $secure
+     * @param string $format
+     * @param array  $attributes
+     * @param bool   $secure
+     *
      * @return string
      */
     public function getTag($format, $attributes = [], $secure = false)
@@ -49,10 +51,11 @@ class Picture {
     }
 
     /**
-     * Return the URL of the picture at a given size
+     * Return the URL of the picture at a given size.
      *
-     * @param  string $format
-     * @param  boolean $secure
+     * @param string $format
+     * @param bool   $secure
+     *
      * @return string
      */
     public function getUrl($format, $secure = false)
@@ -61,10 +64,12 @@ class Picture {
     }
 
     /**
-     * Create dynamic properties to return tags
+     * Create dynamic properties to return tags.
      *
-     * @param  string $key
+     * @param string $key
+     *
      * @return string
+     *
      * @throws \Exception
      */
     public function __get($key)
@@ -73,43 +78,37 @@ class Picture {
     }
 
     /**
-     * Return different invocations of getTag using the name of the dynamic property as size
+     * Return different invocations of getTag using the name of the dynamic property as size.
      *
-     * @param  string $key
-     * @param  array  $args
+     * @param string $key
+     * @param array  $args
+     *
      * @return string
      */
     public function __call($key, $args)
     {
-        if(count($args) == 0)
-        {
+        if (count($args) == 0) {
             return $this->getTag($key);
-        }
-        elseif(count($args) == 1)
-        {
+        } elseif (count($args) == 1) {
             return $this->getTag($key, $args[0]);
-        }
-        else // count >= 2
-        {
+        } else {
+            // count >= 2
+
             return $this->getTag($key, $args[0], $args[1]);
         }
     }
 
     /**
-     * Convert the picture to a string
+     * Convert the picture to a string.
      *
      * @return string
      */
     public function __toString()
     {
-        try
-        {
+        try {
             return $this->getTag('default');
-        }
-        catch(\Exception $e)
-        {
+        } catch (\Exception $e) {
             return '';
         };
-
     }
 }

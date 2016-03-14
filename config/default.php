@@ -14,15 +14,10 @@ return [
     |
     | Exemple:
     |
-    | 'small' => [
-    |   'width'  => 200,
-    |   'height' => 300,
-    |   'crop'
-    | ]
+    | 'small' => [200, 200, true]
     |
     */
     'formats' => [
-
 
     ],
 

@@ -19,8 +19,11 @@
     },
     "autoload": {
         "psr-4": {
-            "Hpkns\\Picturesque\\": "src/Hpkns/Picturesque"
-        }
+            "Hpkns\\Picturesque\\": "src/"
+        },
+        "files": [
+            "src/helpers.php"
+        ]
     },
     "minimum-stability": "stable"
 }

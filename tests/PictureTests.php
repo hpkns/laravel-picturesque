@@ -3,15 +3,15 @@
 use \Hpkns\Picturesque\Picture;
 use \Mockery as m;
 
-class PictureTests extends \PHPUNIT_Framework_TestCase {
-
+class PictureTests extends \PHPUNIT_Framework_TestCase
+{
     protected $sample = [
-        'path'       => 'path/to/file.jpg',
-        'format'     => 'thumbnail',
-        'alt'        => 'Alternative text',
-        'attributes' => ['class'=>'some-class'],
-        'secure'     => true,
-        'tag'        => '<img src="https://domain.dns/path/to/resized.jpg" alt="Alternative text" class="some-class">',
+        'path' => 'path/to/file.jpg',
+        'format' => 'thumbnail',
+        'alt' => 'Alternative text',
+        'attributes' => ['class' => 'some-class'],
+        'secure' => true,
+        'tag' => '<img src="https://domain.dns/path/to/resized.jpg" alt="Alternative text" class="some-class">',
     ];
     protected function tearDown()
     {
@@ -63,7 +63,7 @@ class PictureTests extends \PHPUNIT_Framework_TestCase {
     {
         extract($this->sample);
 
-        $resized = "path";
+        $resized = 'path';
         $this->b
             ->shouldReceive('makeUrl')
             ->once()
@@ -112,11 +112,11 @@ class PictureTests extends \PHPUNIT_Framework_TestCase {
             ->andReturn($tag);
 
         // 1:
-        $this->assertEquals($tag, $p->__call($format,[]));
+        $this->assertEquals($tag, $p->__call($format, []));
         // 2:
-        $this->assertEquals($tag, $p->__call($format,[$attributes]));
+        $this->assertEquals($tag, $p->__call($format, [$attributes]));
         // 3:
-        $this->assertEquals($tag, $p->__call($format,[$attributes, $secure]));
+        $this->assertEquals($tag, $p->__call($format, [$attributes, $secure]));
     }
 
     public function testToString()
@@ -130,7 +130,6 @@ class PictureTests extends \PHPUNIT_Framework_TestCase {
             ->with($path, 'default', $alt, [], false)
             ->andReturn($tag);
 
-        $this->assertEquals($tag, (string)$p);
+        $this->assertEquals($tag, (string) $p);
     }
 }
-

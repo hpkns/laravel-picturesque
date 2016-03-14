@@ -3,10 +3,10 @@
 use \Hpkns\Picturesque\PictureBuilder;
 use \Mockery as m;
 
-require_once(__DIR__ . '/fakes/functions.php');
+require_once __DIR__.'/fakes/functions.php';
 
-class PictureBuilderTests extends \PHPUNIT_Framework_TestCase {
-
+class PictureBuilderTests extends \PHPUNIT_Framework_TestCase
+{
     protected function tearDown()
     {
         m::close();
@@ -15,25 +15,25 @@ class PictureBuilderTests extends \PHPUNIT_Framework_TestCase {
     protected function getSampleValues()
     {
         $public_path = Hpkns\Picturesque\public_path();
-        $path = "path/to/file.jpg";
-        $resized = "new/path/to/file.jpg";
-        $domain_name = "http://website.dns";
+        $path = 'path/to/file.jpg';
+        $resized = 'new/path/to/file.jpg';
+        $domain_name = 'http://website.dns';
 
         return [
-            'public_path'       => $public_path,
+            'public_path' => $public_path,
 
-            'original_path'     => $path,
-            'original_abspath'  => "{$public_path}/{$path}",
-            'original_asset'    => "{$domain_name}/{$path}",
-            'failing_path'      => "should/fail",
+            'original_path' => $path,
+            'original_abspath' => "{$public_path}/{$path}",
+            'original_asset' => "{$domain_name}/{$path}",
+            'failing_path' => 'should/fail',
 
-            'resized_path'      => $resized,
-            'resized_abspath'   => "{$public_path}/{$resized}",
-            'resized_asset'     => "{$domain_name}/{$resized}",
+            'resized_path' => $resized,
+            'resized_abspath' => "{$public_path}/{$resized}",
+            'resized_asset' => "{$domain_name}/{$resized}",
 
-            'format'            => 'thumbnail',
-            'alt'               => 'alternate text',
-            'attributes'        => ['some'=>'attribute'],
+            'format' => 'thumbnail',
+            'alt' => 'alternate text',
+            'attributes' => ['some' => 'attribute'],
             'attributes_parsed' => ' some="attribute" alt="alternate text"',
         ];
     }
@@ -46,7 +46,7 @@ class PictureBuilderTests extends \PHPUNIT_Framework_TestCase {
 
     public function testIsInstanciable()
     {
-        $this->assertInstanceOf('\Hpkns\Picturesque\PictureBuilder', new PictureBuilder);
+        $this->assertInstanceOf('\Hpkns\Picturesque\PictureBuilder', new PictureBuilder());
     }
 
     public function testMake()
@@ -81,6 +81,7 @@ class PictureBuilderTests extends \PHPUNIT_Framework_TestCase {
 
     /**
      * @expectedException Hpkns\Picturesque\Exceptions\NotInPublicPathException
+     *
      * @see realpath() in fakes/functions.php
      */
     public function testFailsIfResizedPictureNotInPulicPath()
@@ -99,10 +100,10 @@ class PictureBuilderTests extends \PHPUNIT_Framework_TestCase {
         $b = new PictureBuilder($this->r, $this->b, $this->g);
 
         $b->make($original_path, $format, $alt, $attributes, false);
-
     }
     /**
      * @expectedException Hpkns\Picturesque\Exceptions\WrongPathException
+     *
      * @see realpath() in fakes/functions.php
      */
     public function testFailsIfPictureDoesNotExists()
@@ -119,4 +120,3 @@ class PictureBuilderTests extends \PHPUNIT_Framework_TestCase {
         $b->make($failing_path);
     }
 }
-
