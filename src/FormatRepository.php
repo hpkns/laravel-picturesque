@@ -87,7 +87,7 @@ class FormatRepository
             return $this->formats[$name];
         }
 
-        throw Exceptions\UnknownFormatException;
+        throw new Exceptions\UnknownFormatException("Unkown format {$name}");
     }
 
     /**
