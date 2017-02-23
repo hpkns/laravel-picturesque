@@ -4,54 +4,69 @@ namespace Hpkns\Picturesque;
 
 use Intervention\Image\ImageManager;
 
-class PictureResizer implements Contracts\PictureResizerContract
+class PictureResizer
 {
     /**
-     * A manager to resize images with.
+     * The quality to user for saving pictures.
+     *
+     * @param int
+     */
+    protected $quality = 80;
+
+    /**
+     * The manager.
      *
      * @var \Intervention\Image\ImageManager
      */
     protected $manager;
 
     /**
-     * Initialise the instance
+     * Initialize the instance.
      *
-     * @param  \Intervention\Image\ImageManager $manager
-     * @param  array  $format
-     * @param  string $cache
-     * @return void
+     * @param int $quality
      */
-    public function __construct(ImageManager $manager = null)
+    public function __construct($quality = 80, ImageManager $manager)
     {
-        $this->manager = $manager ?: new ImageManager;
+        $this->quality = $quality;
+        $this->manager = $manager;
     }
 
     /**
-     * Resizes an image to the desired format
+     * Resize a picture (and much more).
      *
-     * @param  string $input
-     * @param  array  $format
-     * @param  string $output
-     * @return string
+     * @param  string $from
+     * @param  string $to
+     * @param  array $format
+     * @return void
      */
-    public function resize($input, $output, array $format, $force = false)
+    public function resize($from, $to, $format)
     {
-        if (file_exists($output) && !$force && filemtime($output) > filemtime($input)) {
-            return $output;
-        }
+        $p = $this->manager->make($from);
 
-        extract($format);
-
-        $img = $this->manager->make($input);
-
-        if($crop) {
-            $img->fit($width, $height);
+        if ($format->crop) {
+            $p->fit($format->width, $format->height);
         } else {
-            $img->resize($width, $height, function ($constraint) {
+            $p->resize($format->width, $format->height, function ($constraint) {
                 $constraint->aspectRatio();
-            });;
+            });
         }
 
-        $img->save($output);
+        if (isset($format->options['resize_fill']) && ($format->width && $format->height)) {
+            if (true || $format->options['resize_fill'] == 'checker') {
+                $background = $this->manager->make(__DIR__ . '/../resources/checker.png');
+                $background->crop($format->width, $format->height);
+                $background->insert($p, 'center');
+                $p = $background;
+            } else {
+                $p->resizeCanvas($format->width, $format->height, 'center', false, $format->options['resize_fill']);
+            }
+        }
+
+        if (isset($format->options['overlay'])) {
+            $overlay = $this->manager->make($format->options['overlay']);
+            $p->insert($overlay, 'center');
+        }
+
+        $p->save($to);
     }
 }

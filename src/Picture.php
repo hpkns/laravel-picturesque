@@ -2,7 +2,7 @@
 
 namespace Hpkns\Picturesque;
 
-use Illuminate\Html\HtmlBuilder as Builder;
+use Illuminate\Support\HtmlString;
 
 class Picture
 {
@@ -11,7 +11,7 @@ class Picture
      *
      * @var string
      */
-    protected $url;
+    protected $path;
 
     /**
      * The alt attribute.
@@ -20,47 +20,108 @@ class Picture
      */
     protected $alt;
 
-    /**
-     * An HTML builder to parse html attributes.
-     *
-     * @param string                     $url
-     * @param string                     $alt
-     * @param \Hpkns\Picturesque\Resizer $builder
-     */
-    protected $builder;
-
-    public function __construct($url, $alt = null, PictureBuilder $builder = null)
+    public function __construct($path, $alt = null, PathBuilder $builder = null, FormatRepository $formats = null)
     {
-        $this->url = $url;
+        $this->path = $path;
         $this->alt = $alt;
-        $this->builder = $builder ?: \App::make('Hpkns\Picturesque\PictureBuilder');
+        $this->builder = $builder ?: app('picturesque.paths');
+        $this->formats = $formats ?: app('picturesque.formats');
     }
 
     /**
-     * Return the tag for the desired format.
+     * Get the tag to the resized picture.
      *
-     * @param string $format
-     * @param array  $attributes
-     * @param bool   $secure
-     *
-     * @return string
+     * @param  string|\Hpkns\Picturesque\Format $format
+     * @param  array                            $attributes
+     * @param  string                           $alt
+     * @param  bool                             $secure
+     * @return \Illuminate\Support\HtmlString
      */
-    public function getTag($format, $attributes = [], $secure = false)
+    public function getTag($format_name, $attributes = [], $alt = null, $secure = false)
     {
-        return $this->builder->make($this->url, $format, $this->alt, $attributes, $secure);
+        $format = $this->getFormat($format_name);
+
+        $attributes = attributes([
+            'alt' => $alt,
+            'src' => $this->builder->getResizedUrl($this->path, $format),
+            'width' => $format->width,
+            'height' => $format->height,
+        ]);
+
+        return new HtmlString("<img{$attributes}>");
+    }
+
+
+    /**
+     * Return a picture tag.
+     *
+     * @param  string|\Hpkns\Picturesque\Format $format
+     * @param  string                           $alt
+     * @param  bool                             $secure
+     * @return \Illuminate\Support\HtmlString
+     */
+    public function getPictureTag($format, $alt = null, $secure = false) {
+        if ($format = config("picturesque.picture_formats.{$format}")) {
+            $html = '';
+
+            foreach (array_get($format, 'sources', []) as $source) {
+                $source['srcset'] = preg_replace_callback('/:\w+/', \Closure::bind(function($format_name) {
+                    $format = $this->getFormat(ltrim($format_name[0], ':'));
+                    return $this->builder->getResizedUrl($this->path, $format);
+                }, $this), $source['srcset']);
+
+                $attributes = attributes($source);
+                $html .= "<source{$attributes}>";
+            }
+
+            if ($default = array_get($format, 'default')) {
+                $html .= $this->getTag($default, [], $alt, $secure);
+            }
+
+            return new HtmlString("<picture>{$html}</picture>");
+        }
     }
 
     /**
-     * Return the URL of the picture at a given size.
+     * Get a resized picture URL.
      *
-     * @param string $format
-     * @param bool   $secure
-     *
+     * @param  string $format_name
+     * @param  bool   $secure
      * @return string
      */
-    public function getUrl($format, $secure = false)
+    public function getUrl($format_name, $secure = false)
     {
-        return $this->builder->makeUrl($this->url, $format, $secure);
+        $format = $this->getFormat($format_name);
+
+        return $this->builder->getResizedUrl($this->path, $format, $secure);
+    }
+
+    /**
+     * Return a raw path to a resized picture.
+     *
+     * @param  string $format_name
+     * @return string
+     */
+    public function getPath($format_name)
+    {
+        $format = $this->getFormat($format_name);
+
+        return $this->builder->getResizedPath($this->path, $format);
+    }
+
+    /**
+     * Return a format from its name.
+     *
+     * @param  mixed $format_name
+     * @return \Hpkns\Picturesque\Format
+     */
+    public function getFormat($format_name)
+    {
+        if ($format_name instanceof Format) {
+            return $format_name;
+        } else {
+            return $this->formats->get($format_name);
+        }
     }
 
     /**
@@ -74,7 +135,11 @@ class Picture
      */
     public function __get($key)
     {
-        return $this->getTag($key);
+        if (ends_with($key, '_picture')) {
+            return $this->getPictureTag(str_replace('_picture', '', $key));
+        } else {
+            return $this->getTag($key);
+        }
     }
 
     /**
@@ -92,8 +157,6 @@ class Picture
         } elseif (count($args) == 1) {
             return $this->getTag($key, $args[0]);
         } else {
-            // count >= 2
-
             return $this->getTag($key, $args[0], $args[1]);
         }
     }

@@ -24,3 +24,21 @@ if (!function_exists('attributes')) {
         return count($html) > 0 ? ' '.implode(' ', $html) : '';
     }
 }
+
+if (!function_exists('is_json')) {
+    /**
+     * Test if a string contains a json object.
+     *
+     * @param string
+     * @return bool
+     */
+    function is_json($str)
+    {
+        if (!is_string($str)) {
+            return false;
+        }
+
+        json_decode($str);
+        return json_last_error() == JSON_ERROR_NONE;
+    }
+}
