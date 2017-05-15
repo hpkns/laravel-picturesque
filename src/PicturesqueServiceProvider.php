@@ -2,62 +2,68 @@
 
 namespace Hpkns\Picturesque;
 
-use Illuminate\Contracts\Events\Dispatcher;
-use Illuminate\Routing\Router;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Routing\Router;
 use Intervention\Image\ImageManager;
 
 class PicturesqueServiceProvider extends ServiceProvider
 {
     /**
-     * Indicates if loading of the provider is deferred.
+     * Bootstrap the application services.
      *
-     * @var bool
+     * @return void
      */
-    protected $defer = false;
-
-    public function boot(Dispatcher $events, Router $router)
+    public function boot(Router $router)
     {
-        $router->get('/images/cache/{path}', ['as' => 'picturesque.resize', 'uses' => Http\PictureController::class . '@showResized'])
-            ->where('path', '.*');
+        $this->publish();
 
-        $events->listen(Events\ResizedPathCreated::class, Listeners\ResizePicture::class);
+        if (config('picturesque.timing', 'async') == 'async') {
+            $router->group(['middleware'=> 'web'], function()  use ($router){
+                $router->get('picturesque/{resizeable}', Http\ResizeableController::class . '@resize')
+                    ->name('picturesque.resize');
+            });
+        }
+    }
 
+    /**
+     * Publishes the config and migrations.
+     *
+     * @return void
+     */
+    public function publish()
+    {
         $this->publishes([
             __DIR__.'/../config/picturesque.php' => config_path('picturesque.php'),
         ], 'config');
 
         $this->publishes([
-            __DIR__.'/../database/migrations/' => database_path('migrations')
+            __DIR__.'/../database/migrations/' => database_path('migrations'),
         ], 'migrations');
     }
 
     /**
-     * Register the service provider.
+     * Register the application services.
+     *
+     * @return void
      */
     public function register()
     {
         $this->app->singleton('picturesque.formats', function() {
-            return (new FormatRepository)->addFormats(config('picturesque.formats'));
-        });
+            $formats = new Formats\FormatRepository();
+            $formats->addFormats(config('picturesque.formats', []));
 
-        $this->app->singleton('picturesque.paths', function() {
-            return new PathBuilder(config('picturesque.cache'), config('picturesque.path_base'));
+            return $formats;
         });
 
         $this->app->singleton('picturesque.resizer', function($app) {
-            return new PictureResizer(config('picturesque.quality', 80), $app->make(ImageManager::class));
+            $resizer = new Image\ImageResizer(config('picturesque.quality', 80), $app->make(ImageManager::class));
+            $resizer->registerFilters(config('picturesque.filters', []));
+
+            return $resizer;
+        });
+
+        $this->app->singleton('picturesque.paths', function($app) {
+            return new Paths\PathBuilder(config('picturesque.cache'), $app['picturesque.resizer']);
         });
     }
-
-    /**
-     * Get the services provided by the provider.
-     *
-     * @return array
-     */
-    public function provides()
-    {
-        return ['picturesque.formats', 'picturesque.paths'];
-    }
 }
-

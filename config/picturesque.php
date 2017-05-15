@@ -18,29 +18,7 @@ return [
     |
     */
     'formats' => [
-        'small'     => [300, 200, true],
-        'medium'    => [400, 300, true],
-        'medium_2x' => [800, 600, true],
-        'large'     => [800, 600, true],
-    ],
-
-    'default-format' => null,
-
-    /*
-    |--------------------------------------------------------------------------
-    | Picture formats
-    |--------------------------------------------------------------------------
-    |
-    | A list of <picture> formats.
-    */
-    'picture_formats' => [
-        'thumbnail' => [
-            'sources' => [
-                ['srcset' => ':medium, :medium_2x 2x', 'media' => '(max-width: 500px)'],
-                ['srcset' => ':large','media' => '(min-width: 500px)']
-            ],
-            'default' => 'large',
-        ],
+        //
     ],
 
     /*
@@ -55,13 +33,6 @@ return [
     |
      */
     'timing' => 'sync',
-
-    /*
-    |--------------------------------------------------------------------------
-    | File location
-    |--------------------------------------------------------------------------
-     */
-    'path_base' => null,
 
     /*
     |--------------------------------------------------------------------------
@@ -80,4 +51,10 @@ return [
     | 'cache' => public_path('images/cache'),
      */
     'cache' => public_path('images/cache'),
+
+    'filters' => [
+        'darken'  => Hpkns\Picturesque\Image\Filters\Darken::class,
+        'fill'    => Hpkns\Picturesque\Image\Filters\Fill::class,
+        'overlay' => Hpkns\Picturesque\Image\Filters\Overlay::class,
+    ],
 ];

@@ -3,7 +3,7 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreatePicturesquePicturesTable extends Migration
+class CreateResizeablesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -12,10 +12,10 @@ class CreatePicturesquePicturesTable extends Migration
      */
     public function up()
     {
-        Schema::create('picturesque_pictures', function (Blueprint $table) {
+        Schema::create('resizeables', function (Blueprint $table) {
             $table->increments('id');
+            $table->string('path');
             $table->string('resized_path')->unique();
-            $table->string('path')->unique();
             $table->text('format');
             $table->softDeletes();
             $table->timestamps();
@@ -29,6 +29,6 @@ class CreatePicturesquePicturesTable extends Migration
      */
     public function down()
     {
-        Schema::drop('picturesque_pictures');
+        Schema::drop('resizeables');
     }
 }
