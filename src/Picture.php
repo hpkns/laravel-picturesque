@@ -111,7 +111,7 @@ class Picture
      */
     public function __call($key, $args)
     {
-        $this->getTag($key, ...$args);
+        return $this->getTag($key, ...$args);
     }
 
     /**
