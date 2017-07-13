@@ -2,7 +2,7 @@
 
 namespace Hpkns\Picturesque;
 
-use Illuminate\Html\HtmlBuilder as Builder;
+use Illuminate\Support\HtmlString;
 
 class Picture
 {
@@ -11,56 +11,84 @@ class Picture
      *
      * @var string
      */
-    protected $url;
+    protected $path;
 
     /**
-     * The alt attribute.
+     * A set of default attributes.
      *
-     * @var string
+     * @var array
      */
-    protected $alt;
+    protected $attributes;
 
     /**
-     * An HTML builder to parse html attributes.
+     * Initialize the image.
      *
-     * @param string                     $url
-     * @param string                     $alt
-     * @param \Hpkns\Picturesque\Resizer $builder
+     * @param string $path
      */
-    protected $builder;
-
-    public function __construct($url, $alt = null, PictureBuilder $builder = null)
+    public function __construct($path, array $attributes = [])
     {
-        $this->url = $url;
-        $this->alt = $alt;
-        $this->builder = $builder ?: \App::make('Hpkns\Picturesque\PictureBuilder');
+        $this->path = $path;
+        $this->attributes = $attributes;
     }
 
     /**
-     * Return the tag for the desired format.
+     * Get the tag to the resized picture.
      *
-     * @param string $format
-     * @param array  $attributes
-     * @param bool   $secure
-     *
-     * @return string
+     * @param  mixed $format
+     * @param  array $attributes
+     * @param  bool  $secure
+     * @return \Illuminate\Support\HtmlString
      */
     public function getTag($format = null, $attributes = [], $secure = false)
     {
-        return $this->builder->make($this->url, $format, $this->alt, $attributes, $secure);
+        $format = $this->getFormat($format);
+
+        $attributes = attributes(array_merge($this->attributes, $attributes, [
+            'src'    => $this->getResizedUrl($format, $secure),
+            'width'  => $format->width != PHP_INT_MAX ? $format->width : null,
+            'height' => $format->height,
+        ]));
+
+        return new HtmlString("<img{$attributes}>");
     }
 
     /**
-     * Return the URL of the picture at a given size.
+     * Return the URL to the resized version of the picture.
      *
-     * @param string $format
-     * @param bool   $secure
-     *
+     * @param  Hpkns\Picturesque\Formats\Format $format
      * @return string
      */
     public function getUrl($format = null, $secure = false)
     {
-        return $this->builder->makeUrl($this->url, $format, $secure);
+        $format = $this->getFormat($format);
+
+        return $this->getResizedUrl($format, $secure);
+    }
+
+    /**
+     * Return the URL to the resized version of the picture.
+     *
+     * @param  Hpkns\Picturesque\Formats\Format $format
+     * @return string
+     */
+    public function getResizedUrl($format, $secure = false)
+    {
+        return app('picturesque.paths')->getResizedUrl($this->path, $format, $secure);
+    }
+
+    /**
+     * Get the format from its string representation.
+     *
+     * @var mixed
+     * @return \Hpkns\Picturesque\Formats\Format
+     */
+    public function getFormat($format)
+    {
+        if ($format instanceof Format) {
+            return $format;
+        } else {
+            return app('picturesque.formats')[$format];
+        }
     }
 
     /**
@@ -80,10 +108,7 @@ class Picture
      * Create dynamic properties to return tags.
      *
      * @param string $key
-     *
      * @return string
-     *
-     * @throws \Exception
      */
     public function __get($key)
     {
@@ -93,22 +118,13 @@ class Picture
     /**
      * Return different invocations of getTag using the name of the dynamic property as size.
      *
-     * @param string $key
-     * @param array  $args
-     *
+     * @param  string $key
+     * @param  array  $args
      * @return string
      */
     public function __call($key, $args)
     {
-        if (count($args) == 0) {
-            return $this->getTag($key);
-        } elseif (count($args) == 1) {
-            return $this->getTag($key, $args[0]);
-        } else {
-            // count >= 2
-
-            return $this->getTag($key, $args[0], $args[1]);
-        }
+        return $this->getTag($key, ...$args);
     }
 
     /**
@@ -120,7 +136,7 @@ class Picture
     {
         try {
             return $this->getTag('default');
-        } catch (\Exception $e) {
+        } catch (\Exception $e) { // TODO be more specific, maybe!
             return '';
         };
     }

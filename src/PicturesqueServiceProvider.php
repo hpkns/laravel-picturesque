@@ -3,51 +3,67 @@
 namespace Hpkns\Picturesque;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Routing\Router;
+use Intervention\Image\ImageManager;
 
 class PicturesqueServiceProvider extends ServiceProvider
 {
     /**
-     * Indicates if loading of the provider is deferred.
+     * Bootstrap the application services.
      *
-     * @var bool
+     * @return void
      */
-    protected $defer = false;
-
-    public function boot()
+    public function boot(Router $router)
     {
-        $this->publishes([
-                __DIR__.'/../config/default.php' => config_path('picturesque.php'),
-        ], 'config');
+        $this->publish();
+
+        if (config('picturesque.timing', 'async') == 'async') {
+            $router->group(['middleware'=> 'web'], function()  use ($router){
+                $router->get('picturesque/{resizeable}', Http\ResizeableController::class . '@resize')
+                    ->name('picturesque.resize');
+            });
+        }
     }
 
     /**
-     * Register the service provider.
+     * Publishes the config and migrations.
+     *
+     * @return void
+     */
+    public function publish()
+    {
+        $this->publishes([
+            __DIR__.'/../config/picturesque.php' => config_path('picturesque.php'),
+        ], 'config');
+
+        $this->publishes([
+            __DIR__.'/../database/migrations/' => database_path('migrations'),
+        ], 'migrations');
+    }
+
+    /**
+     * Register the application services.
+     *
+     * @return void
      */
     public function register()
     {
-        $this->app->bind(
-            'Hpkns\Picturesque\Contracts\PictureResizerContract',
-            'Hpkns\Picturesque\PictureResizer'
-        );
+        $this->app->singleton('picturesque.formats', function() {
+            $formats = new Formats\FormatRepository();
+            $formats->addFormats(config('picturesque.formats', []));
 
-        $this->app->singleton('picturesque.builder', function ($app) {
-            $resizer = $app['Hpkns\Picturesque\Contracts\PictureResizerContract'];
-            $repository = (new FormatRepository($app['config']['picturesque.cache'], $app['config']['picturesque.default_format']))
-                ->addFormats($app['config']['picturesque.formats']);
-
-            return new PictureBuilder($resizer, $repository, $app['config']['picturesque.cache']);
+            return $formats;
         });
 
-        $this->app->alias('picturesque.builder', 'Hpkns\Picturesque\PictureBuilder');
-    }
+        $this->app->singleton('picturesque.resizer', function($app) {
+            $resizer = new Image\ImageResizer(config('picturesque.quality', 80), $app->make(ImageManager::class));
+            $resizer->registerFilters(config('picturesque.filters', []));
 
-    /**
-     * Get the services provided by the provider.
-     *
-     * @return array
-     */
-    public function provides()
-    {
-        return ['picturesque.builder'];
+            return $resizer;
+        });
+
+        $this->app->singleton('picturesque.paths', function($app) {
+            return new Paths\PathBuilder(config('picturesque.cache'), $app['picturesque.resizer']);
+        });
     }
 }

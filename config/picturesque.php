@@ -14,23 +14,25 @@ return [
     |
     | Exemple:
     |
-    | 'small' => [200, 200, true]
+    | 'small' => [200, 200, false, ['resize_fill' => '#eee']]
     |
     */
     'formats' => [
-
+        //
     ],
 
     /*
     |--------------------------------------------------------------------------
-    | Default format
+    | Resize timing
     |--------------------------------------------------------------------------
     |
-    | The name of the format used whe __toString() is called on a Picture.
-    | If left blank, the fist found format will be used
+    | This option determins when the picture is resized:
+    |
+    | - 'sync': resizes the picture when the tag is required
+    | - 'async': resizes the picture at display
     |
      */
-    'default-format' => '',
+    'timing' => 'sync',
 
     /*
     |--------------------------------------------------------------------------
@@ -41,14 +43,18 @@ return [
     | images. The folder must exists, otherwise your application will fail
     | because Intervention\Image will try to write to a non existent folder.
     |
-    | The cache path must be relative to Laravel's public directory.
-    |
     | If ommited or set to null, it will cause PictureResizer to store resized
     | images is the same folder as their source.
     |
     | Exemple:
     |
-    | 'cache' => '/images/cache',
-    */
-    'cache' => null,
+    | 'cache' => public_path('images/cache'),
+     */
+    'cache' => public_path('images/cache'),
+
+    'filters' => [
+        'darken'  => Hpkns\Picturesque\Image\Filters\Darken::class,
+        'fill'    => Hpkns\Picturesque\Image\Filters\Fill::class,
+        'overlay' => Hpkns\Picturesque\Image\Filters\Overlay::class,
+    ],
 ];
