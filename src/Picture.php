@@ -45,7 +45,7 @@ class Picture
 
         $attributes = attributes(array_merge($this->attributes, $attributes, [
             'src'    => $this->getResizedUrl($format, $secure),
-            'width'  => $format->width,
+            'width'  => $format->width != PHP_INT_MAX ? $format->width : null,
             'height' => $format->height,
         ]));
 
@@ -62,7 +62,7 @@ class Picture
     {
         $format = $this->getFormat($format);
 
-        return $this->getResizedUrl($this->path, $format, $secure);
+        return $this->getResizedUrl($format, $secure);
     }
 
     /**
@@ -111,7 +111,7 @@ class Picture
      */
     public function __call($key, $args)
     {
-        $this->getTag($key, ...$args);
+        return $this->getTag($key, ...$args);
     }
 
     /**

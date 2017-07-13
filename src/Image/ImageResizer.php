@@ -31,11 +31,15 @@ class ImageResizer
      */
     public function handle($path, $resized_path, $format)
     {
+        if (! file_exists($path)) {
+            return;
+        }
+
         if (file_exists($resized_path)) {
             unlink($resized_path);
         }
 
-        if (config('picturesque.timing', 'async') == 'sync') {
+        if (config('picturesque.timing', 'async') == 'sync' || !$format->option('async')) {
             return $this->resize($path, $resized_path, $format);
         } else {
             return $this->schedule($path, $resized_path, $format);
@@ -52,6 +56,10 @@ class ImageResizer
      */
     public function resize($from, $to, $format)
     {
+        if (! file_exists($from)) {
+            return ;
+        }
+
         $i = new Image($from);
 
         $i->resize($format->width, $format->height, $format->crop);

@@ -2,6 +2,4 @@
 
 namespace Hpkns\Picturesque\Events;
 
-class PictureResized
-{
-}
+class PictureResized {  }

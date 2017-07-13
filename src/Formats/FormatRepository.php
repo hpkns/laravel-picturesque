@@ -15,6 +15,15 @@ class FormatRepository implements ArrayAccess, IteratorAggregate
     protected $formats = [];
 
     /**
+     * Initialize the repository.
+     *
+     */
+    public function __construct()
+    {
+        $this->formats['_native'] = new Format(PHP_INT_MAX, PHP_INT_MAX);
+    }
+
+    /**
      * @param  array $formats
      * @return $this
      */

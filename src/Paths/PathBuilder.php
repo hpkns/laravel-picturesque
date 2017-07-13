@@ -45,8 +45,8 @@ class PathBuilder
         $path = $this->getResizedPath($path, $format);
 
         if ($path) {
-            return asset(str_replace(public_path(), '', $path), $secure);
-            //. '?t=' . base_convert(filemtime($path), 10, 32);
+            $path = str_replace(public_path(), '', $path);
+            return asset($path, $secure);
         }
     }
 
@@ -59,6 +59,10 @@ class PathBuilder
      */
     public function getResizedPath($path, Format $format)
     {
+        if (! $this->pictureNeedsResizing($path, $format)) {
+            return $path;
+        }
+
         $resized_path = $this->getOutputPath($path, $format);
 
         if (
@@ -72,6 +76,16 @@ class PathBuilder
         }
 
         return $resized_path;
+    }
+
+    /**
+     *
+     */
+    public function pictureNeedsResizing($path, Format $format)
+    {
+        $size = getimagesize($path);
+
+        return ($format->crop) || ($format->width < $size[0]) || ($format->height < $size[1]);
     }
 
     /**
