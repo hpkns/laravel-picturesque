@@ -31,11 +31,11 @@ class ImageResizer
      */
     public function handle($path, $resized_path, $format)
     {
-        if (! file_exists($path)) {
+        if (! $this->fileExists($path)) {
             return;
         }
 
-        if (file_exists($resized_path)) {
+        if ($this->fileExists($resized_path)) {
             unlink($resized_path);
         }
 
@@ -44,6 +44,11 @@ class ImageResizer
         } else {
             return $this->schedule($path, $resized_path, $format);
         }
+    }
+
+    protected function fileExists($path)
+    {
+        return file_exists($path) && is_file($path);
     }
 
     /**
@@ -56,7 +61,7 @@ class ImageResizer
      */
     public function resize($from, $to, $format)
     {
-        if (! file_exists($from)) {
+        if (! $this->fileExists($from)) {
             return ;
         }
 

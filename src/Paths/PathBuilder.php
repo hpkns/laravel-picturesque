@@ -42,6 +42,10 @@ class PathBuilder
      */
     public function getResizedUrl($path, Format $format, $secure = false)
     {
+        if (!file_exists($path) || !is_file($path)) {
+            return;
+        }
+
         $path = $this->getResizedPath($path, $format);
 
         if ($path) {
@@ -59,6 +63,9 @@ class PathBuilder
      */
     public function getResizedPath($path, Format $format)
     {
+        if (!file_exists($path) || !is_file($path)) {
+            return;
+        }
         if (! $this->pictureNeedsResizing($path, $format)) {
             return $path;
         }
